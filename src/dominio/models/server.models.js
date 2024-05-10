@@ -12,7 +12,8 @@ class Server {
         this.paths = {
             colaboradores: '/api/colaboradores',
             programa:      '/api/programa',
-            registro:      '/api/registro'
+            registro:      '/api/registro',
+            identificacion:'/api/identificaciones',
         };
 
         this.middlewares();
@@ -27,6 +28,7 @@ class Server {
 
     routes(){
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
+        this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
     };
 
     async listen(){
