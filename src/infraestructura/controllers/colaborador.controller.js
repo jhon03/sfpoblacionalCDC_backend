@@ -1,12 +1,10 @@
-const Colaborador = require('../../dominio/models/colaborador.models');
-const { generarId } = require('../helpers/globales.helpers');
+const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores } = require('../helpers/colaborador.helpers');
 
 const registrarColaborador = async (req, res) => {
     const datos = req.body;
     try {
-        let colaborador = new Colaborador(req.body);
-        colaborador.idColaborador = generarId();
-        await colaborador.save();
+        let colaborador = crearInstanciaColaborador(datos);
+        await guardarColaborador(colaborador);
         return res.status(201).json({
             msg: 'EL colaborador a sido creado correctamente',
             colaborador,
@@ -21,7 +19,7 @@ const registrarColaborador = async (req, res) => {
 
 const listColaboradores = async (req, res) =>{
     try {
-        const listColaboradores = await Colaborador.find({estado: "ACTIVO"});
+        const listColaboradores = await obtenerColaboradores();
         return res.json({
             msg: `Se encontraron ${listColaboradores.length} colaboradores`,
             colaboradores: listColaboradores

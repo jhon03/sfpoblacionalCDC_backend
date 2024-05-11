@@ -4,6 +4,7 @@ const { validateCamposPermitidos } = require('../middlewares/validarCampos.middl
 const { checkCamposTipoIdentificacion } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
 const { validarTipoIdentificacion } = require('../middlewares/validarModelos.middleware');
+const { obtenerTipoIdentificacion } = require('../middlewares/obtenerModelos.middlewares');
 
 const camposPermitidosTipoIdentificacion = [
     'nombreIdentificacion',
@@ -29,7 +30,7 @@ router.delete('/eliminar/:idIdentificacion', [
 ], eliminarTipoIdentificacion)
 
 router.get('/activar/:idIdentificacion', [
-    validarTipoIdentificacion,
+    obtenerTipoIdentificacion,
 ], activarIdentificacion)
 
 router.get('/listaIdentificaciones', obtenerIdentificaciones);

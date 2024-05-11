@@ -1,9 +1,8 @@
-const TipoIdentificacion = require('../../dominio/models/tipoIdentificacion.models');
-const Colaborador = require('../../dominio/models/colaborador.models');
+const { obtenerColaboradorByIdentificacion } = require('../helpers/colaborador.helpers');
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
 
 
-const validarTipoIdentificacion = async (req, res, next) => {
+const obtenerTipoIdentificacion = async (req, res, next) => {
     const { idIdentificacion, nombreIdentificacion } = req.params;
     const { tipoIdentificacion } = req.body;
     try {
@@ -13,11 +12,7 @@ const validarTipoIdentificacion = async (req, res, next) => {
         } else {
             tipoIdentificacionE = await buscarIdentificacionByIdOrName(idIdentificacion, nombreIdentificacion);
         }
-        if (!tipoIdentificacionE){
-            return res.status(404).json({
-                msg: 'tipo de identificacion no encontrada',
-            })
-        };
+
         req.tipoIdentificacion = tipoIdentificacionE;
 
         next();
@@ -29,6 +24,22 @@ const validarTipoIdentificacion = async (req, res, next) => {
     }
 };
 
-module.exports = {
-    validarTipoIdentificacion,
+const obtenerColaboradorIdentificacion = async (req, res, next) => {
+    const {numeroIdentificacion} = req.body
+    try {
+        const colaborador = await obtenerColaboradorByIdentificacion(numeroIdentificacion);
+        return colaborador;
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al obtener el colaborador por su numero de documento",
+            error: error.message
+        })
+    }
 }
+
+module.exports = {
+    obtenerTipoIdentificacion,
+    obtenerColaboradorIdentificacion,
+}
+
+

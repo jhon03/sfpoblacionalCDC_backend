@@ -3,6 +3,7 @@ const { listColaboradores, registrarColaborador } = require('../controllers/cola
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposColaborador } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
+const { validarTipoIdentificacion } = require('../middlewares/validarModelos.middleware');
 
 const router = new Router;
 
@@ -18,7 +19,8 @@ router.get('/listColaboradores', listColaboradores);
 router.post('/crear', [
     validateCamposPermitidos(camposPermitidosColaborador),
     checkCamposColaborador,
-    validarCampos
+    validarCampos,
+    validarTipoIdentificacion,
 ], registrarColaborador);
 
 module.exports = router;

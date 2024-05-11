@@ -41,12 +41,12 @@ const actualizarTipoIdentificacion = async (req, res) => {
     const { nombreIdentificacion } = req.body;
     let tipoIdentificacion = req.tipoIdentificacion;
     try {
-
+        if(!tipoIdentificacion.estado) throw new Error("El tipo de identificacion que deseas actualizar no existe o esta inactivo");
         actualizarIdentificacion( tipoIdentificacion, { nombreIdentificacion } );
         const nuevaIdentificacion = await guardarIdentificacion(tipoIdentificacion);
 
         return res.json({
-            mag: 'Tipo de identificacion actualizada correctamente',
+            msg: 'Tipo de identificacion actualizada correctamente',
             tipoIdentificacion: nuevaIdentificacion
         })
     } catch (error) {
@@ -81,6 +81,7 @@ const activarIdentificacion = async (req, res) => {
     const tipoIdentificacion = req.tipoIdentificacion;
     try {
         console.log(tipoIdentificacion)
+        if(!tipoIdentificacion) throw new Error("El tipo de identificacion que deseas activar no existe");
         if(tipoIdentificacion.estado) throw new Error('EL tipo de identificacion ya esta activo');
         actualizarIdentificacion(tipoIdentificacion, {estado: "activar"} );
         const tipoIdentificacionActivada = await guardarIdentificacion(tipoIdentificacion);

@@ -34,7 +34,7 @@ const buscarIdentificaciones = async () => {
     }
 };
 
-const buscarIdentificacionByIdOrName = async (idIdentificacion, nombreIdentificacion) => {
+const buscarIdentificacionByIdOrName = async (idIdentificacion = "", nombreIdentificacion = "") => {
     try {
         //busqueda del tipo de identificacion tanto por nombre como por id
         const identificacion = await TipoIdentificacion.findOne({
