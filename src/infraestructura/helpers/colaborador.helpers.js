@@ -45,11 +45,44 @@ const obtenerColaboradorByIdentificacion = async (numeroIdentificacion) => {
     } catch (error) {
         throw new Error("Error al obtener el colaborador por el documento del colaborador");
     }
+};
+
+const cambiarEstadoColaborador = (colaborador, estado = "") => {
+    try {
+        switch (estado) {
+            case "ACTIVAR":
+                colaborador.estado = "ACTIVO";
+                break;
+            case "DESACTIVAR":
+                colaborador.estado = "INACTIVO";
+                break
+            default:
+                throw new Error("Estado no permitido");
+        }
+    } catch (error) {
+        throw new Error("Error al cambiar el estado del colaborador: " + error.message);
+    }
+};
+
+const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentificacion = "" ) => {
+    try {
+        const colaborador = await Colaborador.findOne({
+            $or: [
+                {idColaborador},
+                {numeroIdentificacion}
+            ],
+        });
+        return colaborador;
+    } catch (error) {
+        throw new Error("Error al buscar el colaborador");
+    }
 }
 
 
 module.exports = {
+    buscarColaboradorByIdOrDocumento,
     crearInstanciaColaborador,
+    cambiarEstadoColaborador,
     guardarColaborador,
     obtenerColaboradores,
     obtenerColaboradorByIdentificacion,

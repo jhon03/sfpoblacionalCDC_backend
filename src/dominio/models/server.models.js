@@ -29,6 +29,7 @@ class Server {
     routes(){
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
+        this.app.use(this.paths.programa, require('../../infraestructura/routes/programa.routes'));
     };
 
     async listen(){

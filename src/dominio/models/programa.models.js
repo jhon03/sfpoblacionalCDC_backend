@@ -7,10 +7,20 @@ const programaSchema = Schema({
         required: [true, 'El id del programa es requerido']
     },
 
+    colaborador: {
+        type: String,
+        required: [true, 'El colaborador es requerido']
+    },
+
+    estado: {
+        type: String,
+        default: "ACTIVO",
+    },
+
     formato: {
         type: mongoose.Schema.Types.Mixed,
         default: {}
-      }
+    }
 
 });
 
