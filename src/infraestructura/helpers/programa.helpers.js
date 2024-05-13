@@ -1,4 +1,19 @@
 const Programa = require('../../dominio/models/programa.models');
+const { generarId } = require('./globales.helpers');
+
+const crearInstanciaPrograma = (datos, colaborador) => {
+    try {
+        const programa = new Programa({
+            idPrograma: generarId(),
+            colaborador: colaborador.idColaborador,
+            nombrePrograma: datos.nombrePrograma.toUpperCase(),
+            formato: datos.formato
+        });
+        return programa;
+    } catch (error) {
+        throw new Error("Error al crear la instancia del programa");
+    }
+}
 
 const guardarPrograma = async (programa) => {
     try {
@@ -25,9 +40,25 @@ const obtenerProgramas = async() => {
     } catch (error) {
         throw new Error("Errro al obtener los programas");
     }
+};
+
+const buscarProgramaByName = async( nombrePrograma = "") => {
+    try {
+        const programa = await Programa.findOne({
+            nombrePrograma: nombrePrograma.toUpperCase(), 
+            estado: "ACTIVO"
+        });
+        return programa;
+    } catch (error) {
+        throw new Error("Error al buscar el programa con el nombre: " + nombrePrograma)
+    }
 }
 
+
+
 module.exports = {
+    buscarProgramaByName,
+    crearInstanciaPrograma,
     guardarPrograma,
     obtenerProgramaById,
     obtenerProgramas,

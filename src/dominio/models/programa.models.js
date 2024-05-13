@@ -17,9 +17,14 @@ const programaSchema = Schema({
         default: "ACTIVO",
     },
 
+    nombrePrograma: {
+        type: String,
+        required: [true, "El nombre del formato que deseas crear es requerido"],
+    },
+
     formato: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {}
+        type: Schema.Types.Mixed,
+        required: [true, "El formato del programa es requerido"],
     }
 
 });
