@@ -92,6 +92,18 @@ const buscarColaboradorById = async (req, res) => {
             error: error.messgage
         })
     }
+};
+
+const actualizarColaborador = async (req, res) => {
+    const { colaborador } = req;
+    try {
+        
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al actualizar el colaborador",
+            error: error.message
+        })
+    }
 }
 
 module.exports = {

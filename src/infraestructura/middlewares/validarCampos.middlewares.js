@@ -1,3 +1,4 @@
+const { compararDatosPersonaWithFormato } = require("../helpers/formato.helpers");
 const { validateCamposPermitidosHelper } = require("../helpers/globales.helpers");
 
 
@@ -15,6 +16,20 @@ const validateCamposPermitidos = (camposPermitidos) => {
     };
 };
 
+const validarCamposFormatoPrograma = async (req,res, next) => {
+    let { programa } = req;
+    try {
+        compararDatosPersonaWithFormato(programa.formato, req.body);
+        next();
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al validar el formato del programa",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     validateCamposPermitidos,
+    validarCamposFormatoPrograma,
 }

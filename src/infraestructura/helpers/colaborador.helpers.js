@@ -77,6 +77,21 @@ const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentifi
     } catch (error) {
         throw new Error("Error al buscar el colaborador");
     }
+};
+
+//pendiente
+const updateColaborador = (colaborador, datos = {}) => {
+    let {nombreColaborador} = datos;
+    try {
+        nombreColaborador = nombreColaborador.toUpperCase();
+        if( nombreColaborador === colaborador.nombreColaborador){
+            throw new Error("El nombre que deseas colocar ya lo tienes");
+        };
+        colaborador.nombreColaborador = nombreColaborador;
+        
+    } catch (error) {
+        throw new Error(error.message);   
+    }
 }
 
 
@@ -87,4 +102,5 @@ module.exports = {
     guardarColaborador,
     obtenerColaboradores,
     obtenerColaboradorByIdentificacion,
+    updateColaborador,
 }

@@ -1,4 +1,6 @@
-const Persona = require('../../dominio/models/persona.models');
+const Persona    = require('../../dominio/models/persona.models');
+const PersonaDto = require('../../aplicacion/dtos/persona.dto');
+const { obtenerFechaColombia, generarId } = require('./globales.helpers');
 
 const obtenerPersonasEnPrograma = async (programa) => {
     const { idPrograma } = programa;
@@ -14,7 +16,22 @@ const obtenerPersonasEnPrograma = async (programa) => {
     }
 };
 
+const crearInstanciaPersona = (datos, programa) => {
+    try {
+        const persona = new Persona({
+            idPersona : generarId(),
+            programa: programa.nombrePrograma,
+            fechaRegistro: obtenerFechaColombia(),
+            datos,
+        });
+        return persona;
+    } catch (error) {
+        throw new Error("Error al crear la instancia de la persona");
+    }
+}
+
 
 module.exports = {
+    crearInstanciaPersona,
     obtenerPersonasEnPrograma,
 }
