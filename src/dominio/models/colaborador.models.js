@@ -30,7 +30,12 @@ const colaboradorSchema = Schema({
     estado: {
         type: String,
         default: "ACTIVO"
-    }
+    },
+
+    fechaRegistro: {
+        type: String,
+        required: [true, 'La fecha de registro del colaborador es requerida']
+    },
 
 });
 

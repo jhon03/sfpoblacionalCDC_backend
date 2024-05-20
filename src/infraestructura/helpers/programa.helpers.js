@@ -1,5 +1,7 @@
 const Programa = require('../../dominio/models/programa.models');
-const { generarId } = require('./globales.helpers');
+const { validarFormato, convertirClavesAMayusculas } = require('./formato.helpers');
+const { generarId, obtenerFechaColombia } = require('./globales.helpers');
+const { obtenerPersonasEnPrograma } = require('./personas.helpers');
 
 const crearInstanciaPrograma = (datos, colaborador) => {
     try {
@@ -7,7 +9,8 @@ const crearInstanciaPrograma = (datos, colaborador) => {
             idPrograma: generarId(),
             colaborador: colaborador.idColaborador,
             nombrePrograma: datos.nombrePrograma.toUpperCase(),
-            formato: datos.formato
+            fechaCreacion: obtenerFechaColombia(),
+            formato: datos.formato,
         });
         return programa;
     } catch (error) {
@@ -24,9 +27,9 @@ const guardarPrograma = async (programa) => {
     }
 };
 
-const obtenerProgramaById = async (idProgrma) => {
+const obtenerProgramaById = async (idPrograma) => {
     try {
-        const programa = Programa.findOne({idProgrma});
+        const programa = Programa.findOne({idPrograma});
         return programa;
     } catch (error) {
         throw new Error("Error al obtener el programa");
@@ -52,7 +55,35 @@ const buscarProgramaByName = async( nombrePrograma = "") => {
     } catch (error) {
         throw new Error("Error al buscar el programa con el nombre: " + nombrePrograma)
     }
-}
+};
+
+const updatePrograma = async (programa, datos = {} ) => {
+    let {estado, nombrePrograma, formato} = datos;
+    try {
+
+        const personas = await obtenerPersonasEnPrograma(programa.idPrograma);
+
+        if(estado === "ACTIVAR"){
+            programa.estado = "ACTIVO";
+        } else if(estado === "DESACTIVAR"){
+            programa.estado = "INACTIVO";
+        } else {
+            if(nombrePrograma.toUpperCase() !== programa.nombrePrograma) {
+                programa.nombrePrograma = nombrePrograma.toUpperCase();
+            };
+            if( personas.length > 0 ){
+                throw new Error("No se puede actualizar el formato del programa, ya que hay personas en el programa");
+            };
+            
+            formato = convertirClavesAMayusculas(formato);
+            validarFormato(formato);
+            programa.formato = formato;
+        }
+    } catch (error) {
+        throw new Error(error.message || error);
+    }
+};
+
 
 
 
@@ -62,4 +93,5 @@ module.exports = {
     guardarPrograma,
     obtenerProgramaById,
     obtenerProgramas,
+    updatePrograma,
 }

@@ -1,5 +1,5 @@
 const Colaborador = require('../../dominio/models/colaborador.models');
-const { generarId } = require('./globales.helpers');
+const { generarId, obtenerFechaColombia } = require('./globales.helpers');
 
 const crearInstanciaColaborador = (datos) => {
     const {tipoIdentificacion, numeroIdentificacion, nombreColaborador, edadColaborador} = datos;
@@ -8,8 +8,9 @@ const crearInstanciaColaborador = (datos) => {
             idColaborador: generarId(),
             tipoIdentificacion,
             numeroIdentificacion,
-            nombreColaborador,
-            edadColaborador
+            nombreColaborador: nombreColaborador.toUpperCase(),
+            edadColaborador,
+            fechaRegistro: obtenerFechaColombia(),
         });
         return colaborador;
     } catch (error) {

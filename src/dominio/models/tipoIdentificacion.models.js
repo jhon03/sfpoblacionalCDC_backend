@@ -15,6 +15,11 @@ const tipoIdentificacionSchema = Schema({
     estado: {
         type: Boolean,
         default: true
+    },
+
+    fechaCreacion: {
+        type: String,
+        required: [true, 'La fecha de creacion del tipo de identificacion es requerida']
     }
 });
 

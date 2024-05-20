@@ -7,6 +7,7 @@ class ProgramaDto {
         this.colaborador          = colaborador.nombreColaborador;
         this.estado               = programa.estado;
         this.nombrePrograma       = programa.nombrePrograma;
+        this.fechaCreacion        = programa.fechaCreacion;
         this.formato              = programa.formato;
     }
 };

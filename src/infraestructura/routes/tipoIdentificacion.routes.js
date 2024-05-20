@@ -1,10 +1,10 @@
 const { Router } = require('express');
-const { crearIdentificacion, obtenerIdentificaciones, actualizarTipoIdentificacion, eliminarTipoIdentificacion, activarIdentificacion } = require('../controllers/tipoIdentificacion.controller');
+const { crearIdentificacion, obtenerIdentificaciones, actualizarTipoIdentificacion, desactivarTipoIdentificacion, activarIdentificacion } = require('../controllers/tipoIdentificacion.controller');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposTipoIdentificacion } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
-const { validarTipoIdentificacion } = require('../middlewares/validarModelos.middleware');
-const { obtenerTipoIdentificacion } = require('../middlewares/obtenerModelos.middlewares');
+const { obtenerTipoIdentificacion } = require('../middlewares/obtenerModelos.middleware');
+
 
 const camposPermitidosTipoIdentificacion = [
     'nombreIdentificacion',
@@ -19,18 +19,18 @@ router.post('/crear', [
 ], crearIdentificacion),
 
 router.put('/actualizar/:idIdentificacion', [
-    validarTipoIdentificacion,
+    obtenerTipoIdentificacion(validar=true),
     validateCamposPermitidos(camposPermitidosTipoIdentificacion),
     checkCamposTipoIdentificacion,
     validarCampos
 ], actualizarTipoIdentificacion);
 
-router.delete('/eliminar/:idIdentificacion', [
-    validarTipoIdentificacion,
-], eliminarTipoIdentificacion)
+router.delete('/desactivar/:idIdentificacion', [
+    obtenerTipoIdentificacion(validar=true),
+], desactivarTipoIdentificacion)
 
 router.get('/activar/:idIdentificacion', [
-    obtenerTipoIdentificacion,
+    obtenerTipoIdentificacion(),
 ], activarIdentificacion)
 
 router.get('/listaIdentificaciones', obtenerIdentificaciones);

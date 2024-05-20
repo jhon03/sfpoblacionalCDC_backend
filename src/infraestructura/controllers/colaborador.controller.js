@@ -1,4 +1,4 @@
-const { colaboradoresToColaboradoresDto, colaboradorToColaboradorDto } = require('../../dominio/mappers/colaborador.mapper');
+const { colaboradoresToColaboradoresDto, colaboradorToColaboradorDto } = require('../../aplicacion/mappers/colaborador.mapper');
 const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores, obtenerColaboradorByIdentificacion, cambiarEstadoColaborador } = require('../helpers/colaborador.helpers');
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
 
@@ -39,10 +39,9 @@ const listColaboradores = async (req, res) =>{
     }
 };
 
-const eliminarColaborador = async (req, res) => {
+const desactivarColaborador = async (req, res) => {
     const { colaborador } = req
     try {
-        if(colaborador.estado === "INACTIVO") throw new Error("El colaborador ya esta eliminado"); 
         cambiarEstadoColaborador(colaborador, "DESACTIVAR");
         const colaboradorEli = await guardarColaborador(colaborador);
         return res.json({
@@ -50,7 +49,7 @@ const eliminarColaborador = async (req, res) => {
         })
     } catch (error) {
         return res.status(400).json({
-            msg: "Error al eliminar el colaborador",
+            msg: "Error al desactivar el colaborador",
             error: error.message,
         })
     }
@@ -98,7 +97,7 @@ const buscarColaboradorById = async (req, res) => {
 module.exports = {
     activarColaborador,
     buscarColaboradorById,
-    eliminarColaborador,
+    desactivarColaborador,
     listColaboradores,
     registrarColaborador,
 }

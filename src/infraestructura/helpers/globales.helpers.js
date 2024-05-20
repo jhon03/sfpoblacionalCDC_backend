@@ -34,7 +34,15 @@ const validateCamposPermitidosHelper = (camposIntroducidos, camposPermitidos) =>
     }
 };
 
+const obtenerFechaColombia = () => {
+    const hoy = new Date()
+    const opciones = { timeZone: 'America/Bogota' };
+    const fechaColombia = hoy.toLocaleString('es-CO', opciones);
+    return fechaColombia;
+}
+
 module.exports = {
     generarId,
+    obtenerFechaColombia,
     validateCamposPermitidosHelper
 }

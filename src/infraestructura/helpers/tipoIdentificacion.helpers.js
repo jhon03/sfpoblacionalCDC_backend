@@ -1,11 +1,12 @@
 const TipoIdentificacion = require('../../dominio/models/tipoIdentificacion.models');
-const { generarId } = require('./globales.helpers');
+const { generarId, obtenerFechaColombia } = require('./globales.helpers');
 
 const crearInstanciaIdentificacion = (nombreIdentificacion) => {
     try {
         const tipoIdentificacion = new TipoIdentificacion({
             idIdentificacion: generarId(),
-            nombreIdentificacion: nombreIdentificacion.toUpperCase()
+            nombreIdentificacion: nombreIdentificacion.toUpperCase(),
+            fechaCreacion: obtenerFechaColombia(),
         });
         return tipoIdentificacion;
     } catch (error) {
@@ -19,7 +20,6 @@ const guardarIdentificacion = async (identificacion) => {
         const identificacionGuardada = await identificacion.save();
         return identificacionGuardada;
     } catch (error) {
-        console.log({error: error.message});
         throw new Error('Error al guardar el tipo de identificacion');
     }
 };
@@ -53,9 +53,9 @@ const buscarIdentificacionByIdOrName = async (idIdentificacion = "", nombreIdent
 const actualizarIdentificacion = (tipoIdentificacion, campos = {} ) => {
     let { nombreIdentificacion, estado } = campos;
     try {
-        if(estado === 'desactivar'){         //cambiamos el estado a false para eliminar la identificacion
+        if(estado === 'DESACTIVAR'){         //cambiamos el estado a false para eliminar la identificacion
             tipoIdentificacion.estado = false;
-        } else if(estado === 'activar'){
+        } else if(estado === 'ACTIVAR'){
             tipoIdentificacion.estado = true;
         } else {
             if(nombreIdentificacion.toUpperCase() === tipoIdentificacion.nombreIdentificacion){

@@ -1,9 +1,9 @@
 const { Router } = require('express');
-const { listColaboradores, registrarColaborador, eliminarColaborador, activarColaborador, buscarColaboradorById } = require('../controllers/colaborador.controller');
+const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById } = require('../controllers/colaborador.controller');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposColaborador } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
-const { validarTipoIdentificacion, validarColaborador } = require('../middlewares/validarModelos.middleware');
+const { obtenerTipoIdentificacion, obtenerColaborador } = require('../middlewares/obtenerModelos.middleware');
 
 const router = new Router;
 
@@ -20,19 +20,19 @@ router.post('/crear', [
     validateCamposPermitidos(camposPermitidosColaborador),
     checkCamposColaborador,
     validarCampos,
-    validarTipoIdentificacion,
+    obtenerTipoIdentificacion(validar= true),
 ], registrarColaborador);
 
-router.delete('/eliminar/:idColaborador', [
-    validarColaborador
-], eliminarColaborador);
+router.delete('/desactivar/:idColaborador', [
+    obtenerColaborador(validar= true),
+], desactivarColaborador);
 
 router.get('/activar/:idColaborador', [
-    validarColaborador
+    obtenerColaborador(),
 ], activarColaborador);
 
 router.get('/findById/:idColaborador', [
-    validarColaborador
+    obtenerColaborador(validar = true),
 ], buscarColaboradorById);
 
 module.exports = router;

@@ -9,6 +9,7 @@ class ColaboradorDto {
         this.numeroDocumento = datos.numeroIdentificacion;
         this.nombre = datos.nombreColaborador;
         this.edad = datos.edadColaborador;
+        this.fechaRegistro = datos.fechaRegistro;
     }
 };
 
