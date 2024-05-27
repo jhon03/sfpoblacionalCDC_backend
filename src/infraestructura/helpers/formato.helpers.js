@@ -20,6 +20,18 @@ const convertirClavesAMayusculas = (obj) => {
     return nuevoObjeto;
 };
 
+const convertirValuesToUpperCase = (obj) => {
+    const nuevoObjeto = {};
+    for (let [key, value] of Object.entries(obj)) {
+        if(typeof value === 'string' || value instanceof String){
+            nuevoObjeto[key] = value.toUpperCase();
+        } else {
+            nuevoObjeto[key] = value;
+        }
+    }
+    return nuevoObjeto;
+}
+
 const compararDatosPersonaWithFormato = (formato, datos = {}) => {
     try {
         for (let [key, tipo] of Object.entries(formato)) {
@@ -44,6 +56,7 @@ const compararDatosPersonaWithFormato = (formato, datos = {}) => {
 
 module.exports = {
     convertirClavesAMayusculas,
+    convertirValuesToUpperCase,
     compararDatosPersonaWithFormato,
     validarFormato,
 }

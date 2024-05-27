@@ -1,6 +1,7 @@
 const { programaToProgramaDto, programasToProgramasDtos } = require("../../aplicacion/mappers/programa.mapper");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
 const { validarFormato, convertirClavesAMayusculas } = require("../helpers/formato.helpers");
+const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
 const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma } = require("../helpers/programa.helpers");
 
 const crearPrograma = async (req, res) => {

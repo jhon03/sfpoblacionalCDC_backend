@@ -1,6 +1,7 @@
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
 const { buscarColaboradorByIdOrDocumento } = require('../helpers/colaborador.helpers');
 const { obtenerProgramaById } = require('../helpers/programa.helpers');
+const { getPersonaById } = require('../helpers/personas.helpers');
 
 
 const obtenerTipoIdentificacion = (validar= false) => {
@@ -81,10 +82,34 @@ const obtenerPrograma = (validar = false) => {
             })
         }
     }
+};
+
+const obtenerPersona = (validar = false) => {
+    return async (req, res, next) => {
+        const { idPersona } = req.params;
+        try {
+            const persona = await getPersonaById(idPersona);
+            if(!persona) throw new Error("No existe La persona que estas buscando");
+            if(validar && persona.estado === "INACTIVO"){
+                return res.status(404).json({
+                    msg: "La persona que buscas esta inactiva",
+                })
+            };
+            req.persona = persona;
+            next();
+
+        } catch (error) {
+            return res.status(400).json({
+                msg: "Error al obtener el registro de la persona",
+                error: error.message
+            })
+        }
+    }
 }
 
 module.exports = {
     obtenerColaborador,
     obtenerPrograma,
+    obtenerPersona,
     obtenerTipoIdentificacion
 }

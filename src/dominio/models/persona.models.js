@@ -16,6 +16,11 @@ const personaSchema = Schema({
         required: [true, 'La fecha de registro de la persona es requerida']
     },
 
+    estado: {
+        type: String,
+        default: "ACTIVO"
+    },
+
     datos: {
         type: Schema.Types.Mixed,
         required: [true, "Los datos de la persona son requeridos"]

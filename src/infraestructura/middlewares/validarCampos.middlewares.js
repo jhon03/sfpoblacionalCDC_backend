@@ -1,5 +1,6 @@
-const { compararDatosPersonaWithFormato } = require("../helpers/formato.helpers");
+const { compararDatosPersonaWithFormato, convertirValuesToUpperCase } = require("../helpers/formato.helpers");
 const { validateCamposPermitidosHelper } = require("../helpers/globales.helpers");
+const { obtenerProgramaById } = require("../helpers/programa.helpers");
 
 
 //validamos los campos del producto a crear para que solo esten los necesarios y permitidos
@@ -17,8 +18,11 @@ const validateCamposPermitidos = (camposPermitidos) => {
 };
 
 const validarCamposFormatoPrograma = async (req,res, next) => {
-    let { programa } = req;
+    let { programa, persona } = req;
     try {
+        if(!programa){
+            programa = await obtenerProgramaById(persona.programa);
+        }
         compararDatosPersonaWithFormato(programa.formato, req.body);
         next();
     } catch (error) {
