@@ -32,10 +32,15 @@ const colaboradorSchema = Schema({
         default: "ACTIVO"
     },
 
-    fechaRegistro: {
+    fechaCreacion: {
         type: String,
         required: [true, 'La fecha de registro del colaborador es requerida']
     },
+
+    fechaModificacion: {
+        type: String,
+        default: "Sin modificaciones",
+    }
 
 });
 
