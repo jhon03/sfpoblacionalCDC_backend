@@ -3,8 +3,8 @@ const { generarId } = require('./globales.helpers');
 
 const guardarRol = async(rol) => {
     try {
-        const rol = await rol.save();
-        return rol;
+        const rolSaved = await rol.save();
+        return rolSaved;
     } catch (error) {
         throw new Error(error.message);
     }
@@ -24,17 +24,23 @@ const crearInstanciaRol = (datos) => {
     }
 };
 
-const buscarRoleById = async (idRol="", validar = false) => {
+const buscarRoleById = async (idRol="") => {
     try {
         const rol = Rol.findOne({idRol});
-        if(validar && !rol.estado){
-            throw new Error("El rol que deseas buscar se encuentra inactivo");
-        };
         return rol;
     } catch (error) {
         throw new Error(error.message);
     }
 };
+
+const buscarRolByName = async (nombreRol="") => {
+    try {
+        const rol = Rol.findOne({nombreRol});
+        return rol;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
 
 const buscarRoles = async () => {
     try {
@@ -83,9 +89,9 @@ const updateRol = (rol, datos={} ) => {
 module.exports = {
     buscarRoleById,
     buscarRoles,
+    buscarRolByName,
     cambiarEstadoRol,
     crearInstanciaRol,
-    crearRol,
     guardarRol,
     updateRol
 }

@@ -34,12 +34,9 @@ const crearInstanciaUser = (datos, colaborador) => {
     }
 };
 
-const buscarUserById = async (idUsuario="", validar=false) => {
+const buscarUserById = async (idUsuario="") => {
     try {
         const user = User.findOne({idUsuario});
-        if(validar && user.estado === "INACTIVO"){
-            throw new Error("El usuario se encuentra inactivo");
-        }
         return user;
     } catch (error) {
         throw new Error(error.message);
@@ -75,7 +72,7 @@ const cambiarEstadoUser = (user, estado="") => {
     }
 };
 
-const actualizarUser = async (user, datos={}) => {
+const actualizarUser =  (user, datos={}) => {
     let {nombreUsuario, contrasena} = datos;
     try {
         let cambios = false;

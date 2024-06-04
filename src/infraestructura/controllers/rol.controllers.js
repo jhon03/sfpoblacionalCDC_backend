@@ -1,9 +1,13 @@
 const { rolToRolDto, rolsToRolsDto } = require("../../aplicacion/mappers/rol.mapper");
-const { crearInstanciaRol, guardarRol, buscarRoles, cambiarEstadoRol, updateRol } = require("../helpers/rol.helpers")
+const { crearInstanciaRol, guardarRol, buscarRoles, cambiarEstadoRol, updateRol, buscarRolByName } = require("../helpers/rol.helpers")
 
 const crearRol = async (req, res) => {
     const { body: datos } = req;
     try {
+        const rolName = await buscarRolByName(datos.nombreRol);
+        if( rolName && rolName.estado ){
+            throw new Error(`El nombre ${datos.nombreRol} ya existe como rol`)
+        }
         const rol = await crearInstanciaRol(datos);
         const rolSaved = await guardarRol(rol);
         const rolDto = rolToRolDto(rolSaved);
