@@ -15,6 +15,8 @@ class Server {
             programa:      '/api/programa',
             persona:       '/api/persona',
             registro:      '/api/registro',
+            rol:           '/api/rol',
+            user:          '/api/user',
         };
 
         this.middlewares();
@@ -31,7 +33,9 @@ class Server {
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
         this.app.use(this.paths.programa, require('../../infraestructura/routes/programa.routes'));
-        this.app.use(this.paths.persona, require('../../infraestructura/routes/persona.routes.js'))
+        this.app.use(this.paths.persona, require('../../infraestructura/routes/persona.routes.js'));
+        this.app.use(this.paths.rol, require('../../infraestructura/routes/rol.routes.js'));
+        this.app.use(this.paths.user, require('../../infraestructura/routes/user.routes.js'));
     };
 
     async listen(){
