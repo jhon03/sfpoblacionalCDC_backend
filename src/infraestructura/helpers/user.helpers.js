@@ -1,9 +1,9 @@
 const User = require('../../dominio/models/user.models');
 const { generarId } = require('./globales.helpers');
 
-const guardarUser = async(user) => {
+const guardarUser = async(user, session) => {
     try {
-        const userG = await user.save();
+        const userG = await user.save({session});
         return userG;
     } catch (error) {
         throw new Error("Error al guardar el usuario");
@@ -113,7 +113,17 @@ const contrasenaEsValida = (contrasena = "") => {
     } catch (error) {
         throw new Error("la contraseña debe de tener al menos: " + error.message);
     }
-}
+};
+
+const findUserByUsername = async(nombreUsuario="") => {
+    try {
+        const user = await User.findOne({nombreUsuario});
+        return user;
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 
 module.exports = {
@@ -121,6 +131,7 @@ module.exports = {
     buscarUserByColaborador,
     buscarUserById,
     buscarUsers,
+    findUserByUsername,
     cambiarEstadoUser,
     contrasenaEsValida,
     crearInstanciaUser,

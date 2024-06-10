@@ -22,11 +22,6 @@ const colaboradorSchema = Schema({
         required: [true, 'El nombre del colaborador es requerido'],
     },
 
-    edadColaborador: {
-        type: Number,
-        required: [true, 'La edad del colaborador es requerida']
-    },
-
     estado: {
         type: String,
         default: "ACTIVO"

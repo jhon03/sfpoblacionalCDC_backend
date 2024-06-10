@@ -9,7 +9,7 @@ const userToUserDto = (user, colaborador) => {
         const userDto = new UserDto(user, colaborador);
         return userDto;
     } catch (error) {
-        throw new Error("Error al mapear los datos del usuario");
+        throw new Error(error.message);
     }
 };
 

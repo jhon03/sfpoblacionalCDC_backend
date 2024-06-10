@@ -1,9 +1,9 @@
 const { Router } = require('express');
-const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById } = require('../controllers/colaborador.controller');
+const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById, registrarColaboradorTransactional } = require('../controllers/colaborador.controller');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
-const { checkCamposColaborador } = require('../helpers/validarCamposCheck.helpers');
+const { checkCamposColaborador, checkCamposUser } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
-const { obtenerTipoIdentificacion, obtenerColaborador } = require('../middlewares/obtenerModelos.middleware');
+const { obtenerTipoIdentificacion, obtenerColaborador, obtenerUsuarioByUserName } = require('../middlewares/obtenerModelos.middleware');
 
 const router = new Router;
 
@@ -11,7 +11,8 @@ const camposPermitidosColaborador = [
     'tipoIdentificacion',
     'numeroIdentificacion',
     'nombreColaborador',
-    'edadColaborador',
+    'nombreUsuario',
+    'contrasena'
 ]
 
 router.get('/listColaboradores', listColaboradores);
@@ -19,8 +20,10 @@ router.get('/listColaboradores', listColaboradores);
 router.post('/crear', [
     validateCamposPermitidos(camposPermitidosColaborador),
     checkCamposColaborador,
+    checkCamposUser,
     validarCampos,
     obtenerTipoIdentificacion(validar= true),
+    obtenerUsuarioByUserName(validar=true)
 ], registrarColaborador);
 
 router.delete('/desactivar/:idColaborador', [

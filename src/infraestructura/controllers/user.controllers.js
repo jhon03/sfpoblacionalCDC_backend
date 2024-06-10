@@ -3,22 +3,15 @@ const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.hel
 const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser } = require("../helpers/user.helpers");
 
 
-
-const crearUser = async(req, res) => {
-    const {colaborador, body:datos} = req;
+//funcion para crear el usuario
+const crearUser = async(colaborador, datos) => {
     try {
         const user = crearInstanciaUser(datos, colaborador);
         const userSaved = await guardarUser(user);
         const userDto = userToUserDto(userSaved, colaborador);
-        return res.status(201).json({
-            msg: "usuario creado correctamente",
-            user: userDto
-        })
+        return userDto;
     } catch (error) {
-        return res.status(400).json({
-            msg:"Error al crear el usuario",
-            error: error.message
-        })
+        throw new Error("Error al crear el usuario del colaborador");
     }
 };
 

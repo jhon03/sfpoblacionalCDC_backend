@@ -1,4 +1,5 @@
 const { v4: uuid } = require('uuid');
+const bcryptjs = require('bcryptjs');
 
 const generarId = () => {
     try {
@@ -39,9 +40,19 @@ const obtenerFechaColombia = () => {
     const opciones = { timeZone: 'America/Bogota' };
     const fechaColombia = hoy.toLocaleString('es-CO', opciones);
     return fechaColombia;
-}
+};
+
+const encryptarContra = (datos) => {
+    try {
+      const salt = bcryptjs.genSaltSync();  //encriptar nueva contraseña
+      datos.contrasena= bcryptjs.hashSync( datos.contrasena, salt);
+    } catch (error) {
+      throw new Error(`Error al encryptar la contraseña: ${error.message}`);
+    }
+  }
 
 module.exports = {
+    encryptarContra,
     generarId,
     obtenerFechaColombia,
     validateCamposPermitidosHelper

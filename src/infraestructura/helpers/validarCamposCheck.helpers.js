@@ -9,8 +9,6 @@ exports.checkCamposColaborador = [
     check('numeroIdentificacion','El numero de identificacion debe ser numerica').isNumeric(),
     check('nombreColaborador', 'El nombre del colaborador es requerido').not().isEmpty(),
     check('nombreColaborador', 'El nombre del colaborador debe ser un string').isString(),
-    check('edadColaborador', 'La edad del colaborador es requerida').not().isEmpty(),
-    check('edadColaborador', 'La edad del colaborador debe ser numerica').isNumeric(),
 ];
 
 exports.checkCamposTipoIdentificacion = [
@@ -38,5 +36,5 @@ exports.checkCamposUser = [
     check('nombreUsuario', 'El nombre de usuario es requerido').not().isEmpty(),
     check('nombreUsuario', 'El nombre de usuario debe ser de tipo string').isString(),
     check('contrasena', 'La contrasena es requerida').not().isEmpty(),
-    check('contrasena').custom(contrasenaEsValida),
+    check('contrasena', 'la contrasena debe ser de tipo string').isString(),
 ]

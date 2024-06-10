@@ -2,7 +2,7 @@ const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacio
 const { buscarColaboradorByIdOrDocumento } = require('../helpers/colaborador.helpers');
 const { obtenerProgramaById } = require('../helpers/programa.helpers');
 const { getPersonaById } = require('../helpers/personas.helpers');
-const { buscarUserById } = require('../helpers/user.helpers');
+const { buscarUserById, findUserByUsername } = require('../helpers/user.helpers');
 const { buscarRoleById } = require('../helpers/rol.helpers');
 
 
@@ -143,7 +143,7 @@ const obtenerRol = (validar=false) => {
                 })
             }
 
-            req.user = user;
+            req.rol = rol;
             next();
         } catch (error) {
             return res.status(400).json({
@@ -153,6 +153,29 @@ const obtenerRol = (validar=false) => {
         }
     }
         
+};
+
+//middleware solo para validar existencia de un username
+const obtenerUsuarioByUserName = (validar=false) => {
+    return async (req, res, next) => {
+        const { nombreUsuario } = req.body;
+        try {
+            const user = await findUserByUsername(nombreUsuario);
+            if(!user && !validar) throw new Error("El usuario que buscas no existe");
+            if(validar && user && user.estado === "ACTIVO"){
+                return res.status(400).json({
+                    error: `El nombre de usuario ${nombreUsuario} ya esta en uso`
+                })
+            };
+            req.user = user;
+            next();
+        } catch (error) {
+            return res.status(400).json({
+                msg:"Error al obtener el usuario por el nombre de usuario",
+                error: error.message,
+            })
+        }
+    }
 }
 
 module.exports = {
@@ -162,4 +185,5 @@ module.exports = {
     obtenerRol,
     obtenerTipoIdentificacion,
     obtenerUser,
+    obtenerUsuarioByUserName,
 }

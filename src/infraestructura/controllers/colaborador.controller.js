@@ -1,19 +1,29 @@
 const { colaboradoresToColaboradoresDto, colaboradorToColaboradorDto } = require('../../aplicacion/mappers/colaborador.mapper');
+const { userToUserDto } = require('../../aplicacion/mappers/user.mapper');
 const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores, obtenerColaboradorByIdentificacion, cambiarEstadoColaborador } = require('../helpers/colaborador.helpers');
+const { encryptarContra } = require('../helpers/globales.helpers');
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
+const { contrasenaEsValida} = require('../helpers/user.helpers');
+const { crearUser } = require('./user.controllers');
+
 
 const registrarColaborador = async (req, res) => {
-    const { tipoIdentificacion, body:datos } = req
+    let { tipoIdentificacion, body:datos } = req
     try {
+        contrasenaEsValida(datos.contrasena);
+        encryptarContra(datos)
         if( await obtenerColaboradorByIdentificacion(datos.numeroIdentificacion) ) {
             throw new Error("El numero de identificacion que introduciste ya existe");
-        }
+        };
         let colaborador = crearInstanciaColaborador(datos);
         await guardarColaborador(colaborador);
+        let user = await crearUser(colaborador, datos);
+        const userDto = userToUserDto(user, colaborador);
         const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
         return res.status(201).json({
             msg: 'EL colaborador a sido creado correctamente',
             colaborador: colaboradorDto,
+            usuario: userDto
         })
     } catch (error) {
         return res.status(400).json({
@@ -104,7 +114,8 @@ const actualizarColaborador = async (req, res) => {
             error: error.message
         })
     }
-}
+};
+
 
 module.exports = {
     activarColaborador,
@@ -112,4 +123,5 @@ module.exports = {
     desactivarColaborador,
     listColaboradores,
     registrarColaborador,
+
 }

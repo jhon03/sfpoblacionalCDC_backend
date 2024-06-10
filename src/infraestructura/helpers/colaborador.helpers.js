@@ -2,15 +2,14 @@ const Colaborador = require('../../dominio/models/colaborador.models');
 const { generarId, obtenerFechaColombia } = require('./globales.helpers');
 
 const crearInstanciaColaborador = (datos) => {
-    const {tipoIdentificacion, numeroIdentificacion, nombreColaborador, edadColaborador} = datos;
+    const {tipoIdentificacion, numeroIdentificacion, nombreColaborador} = datos;
     try {
         const colaborador = new Colaborador({
             idColaborador: generarId(),
             tipoIdentificacion,
             numeroIdentificacion,
             nombreColaborador: nombreColaborador.toUpperCase(),
-            edadColaborador,
-            fechaRegistro: obtenerFechaColombia(),
+            fechaCreacion: obtenerFechaColombia(),
         });
         return colaborador;
     } catch (error) {
@@ -23,7 +22,7 @@ const guardarColaborador = async (colaborador) => {
         const colaboradorG = await colaborador.save();
         return colaboradorG;
     } catch (error) {
-        throw new Error("Error al guardar el colaborador");
+        throw new Error(error.message);
     }
 };
 
@@ -32,7 +31,7 @@ const obtenerColaboradores = async() => {
         const listaColaboradores = await Colaborador.find({estado:"ACTIVO"});
         return listaColaboradores;
     } catch (error) {
-        throw new Error("Error al obtener los colaboradores");
+        throw new Error(error.message);
     }
 };
 
@@ -44,7 +43,7 @@ const obtenerColaboradorByIdentificacion = async (numeroIdentificacion) => {
         })
         return colaborador;
     } catch (error) {
-        throw new Error("Error al obtener el colaborador por el documento del colaborador");
+        throw new Error(error.message);
     }
 };
 
