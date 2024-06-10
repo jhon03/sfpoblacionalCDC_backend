@@ -1,14 +1,16 @@
 
 class ProgramaDto {
 
-    constructor(programa, colaborador){
-        this.id                   = programa.idPrograma;
-        this.documentoColaborador = colaborador.numeroIdentificacion;
-        this.colaborador          = colaborador.nombreColaborador;
-        this.estado               = programa.estado;
-        this.nombrePrograma       = programa.nombrePrograma;
-        this.fechaCreacion        = programa.fechaCreacion;
-        this.formato              = programa.formato;
+    constructor(programa, colaboradorCreador, colaboradorAsignado){
+        this.id                           = programa.idPrograma;
+        this.IdColaborador                = colaboradorCreador.idColaborador;
+        this.colaborador                  = colaboradorCreador.nombreColaborador;
+        this.estado                       = programa.estado;
+        this.nombrePrograma               = programa.nombrePrograma;
+        this.fechaCreacion                = programa.fechaCreacion;
+        this.IdcolaboradorResponsable     = colaboradorAsignado ? colaboradorAsignado.idColaborador : "" ;
+        this.nombreColaboradorResponsable = colaboradorAsignado ? colaboradorAsignado.nombreColaborador : "";
+        this.formato                      = programa.formato;
     }
 };
 

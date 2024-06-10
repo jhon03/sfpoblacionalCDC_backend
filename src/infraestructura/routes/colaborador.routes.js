@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById, registrarColaboradorTransactional } = require('../controllers/colaborador.controller');
+const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById, registrarColaboradorTransactional, actualizarColaborador } = require('../controllers/colaborador.controller');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposColaborador, checkCamposUser } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
@@ -37,5 +37,9 @@ router.get('/activar/:idColaborador', [
 router.get('/findById/:idColaborador', [
     obtenerColaborador(validar = true),
 ], buscarColaboradorById);
+
+router.put('/actualizar/:idColaborador', [
+    obtenerColaborador(validar=true)
+], actualizarColaborador);
 
 module.exports = router;

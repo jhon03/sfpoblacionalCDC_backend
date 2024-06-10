@@ -7,14 +7,14 @@ const programaSchema = Schema({
         required: [true, 'El id del programa es requerido']
     },
 
-    colaborador: {
+    colaboradorCreador: {
         type: String,
         required: [true, 'El colaborador es requerido']
     },
 
     estado: {
         type: String,
-        default: "ACTIVO",
+        default: "EN PROCESO CONFIRMACION",
     },
 
     nombrePrograma: {
@@ -25,6 +25,11 @@ const programaSchema = Schema({
     fechaCreacion: {
         type: String,
         required: [true, 'La fecha de creacion del programa es requerida']
+    },
+
+    colaboradorResponsable: {
+        type: String,
+        default: ""
     },
 
     formato: {

@@ -1,10 +1,10 @@
 const { colaboradoresToColaboradoresDto, colaboradorToColaboradorDto } = require('../../aplicacion/mappers/colaborador.mapper');
-const { userToUserDto } = require('../../aplicacion/mappers/user.mapper');
-const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores, obtenerColaboradorByIdentificacion, cambiarEstadoColaborador } = require('../helpers/colaborador.helpers');
-const { encryptarContra } = require('../helpers/globales.helpers');
+const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores, obtenerColaboradorByIdentificacion, cambiarEstadoColaborador, updateColaborador } = require('../helpers/colaborador.helpers');
+const { encryptarContra } = require('../helpers/auth.helpers');
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
 const { contrasenaEsValida} = require('../helpers/user.helpers');
 const { crearUser } = require('./user.controllers');
+const { obtenerFechaColombia } = require('../helpers/globales.helpers');
 
 
 const registrarColaborador = async (req, res) => {
@@ -17,8 +17,7 @@ const registrarColaborador = async (req, res) => {
         };
         let colaborador = crearInstanciaColaborador(datos);
         await guardarColaborador(colaborador);
-        let user = await crearUser(colaborador, datos);
-        const userDto = userToUserDto(user, colaborador);
+        let userDto = await crearUser(colaborador, datos);
         const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
         return res.status(201).json({
             msg: 'EL colaborador a sido creado correctamente',
@@ -105,9 +104,18 @@ const buscarColaboradorById = async (req, res) => {
 };
 
 const actualizarColaborador = async (req, res) => {
-    const { colaborador } = req;
+    let { colaborador, body:datos } = req;
     try {
-        
+        updateColaborador(colaborador, datos);
+        colaborador.fechaModificacion = obtenerFechaColombia();
+        const tipoIdentificacion = await buscarIdentificacionByIdOrName(colaborador.tipoIdentificacion);
+        await guardarColaborador(colaborador);
+        const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
+        return res.status(400).json({
+            msg: "Colaborador actualizado con exito",
+            colaborador: colaboradorDto
+        }) 
+
     } catch (error) {
         return res.status(400).json({
             msg: "Error al actualizar el colaborador",
@@ -119,6 +127,7 @@ const actualizarColaborador = async (req, res) => {
 
 module.exports = {
     activarColaborador,
+    actualizarColaborador,
     buscarColaboradorById,
     desactivarColaborador,
     listColaboradores,

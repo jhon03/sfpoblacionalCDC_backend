@@ -4,9 +4,9 @@ const UserDto = require('../dtos/user.dto');
 
 
 
-const userToUserDto = (user, colaborador) => {
+const userToUserDto = (user, colaborador, rol) => {
     try {
-        const userDto = new UserDto(user, colaborador);
+        const userDto = new UserDto(user, colaborador, rol);
         return userDto;
     } catch (error) {
         throw new Error(error.message);

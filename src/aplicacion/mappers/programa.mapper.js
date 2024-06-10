@@ -1,25 +1,27 @@
 const { buscarColaboradorByIdOrDocumento } = require("../../infraestructura/helpers/colaborador.helpers");
 const ProgramaDto = require("../dtos/programa.dto");
 
-const programaToProgramaDto = (programa, colaborador) => {
+const programaToProgramaDto = (programa, colaborador, colaboradorAsignado = "") => {
     try {
-        const programaDto = new ProgramaDto(programa, colaborador);
+        const programaDto = new ProgramaDto(programa, colaborador, colaboradorAsignado);
         return programaDto;
     } catch (error) {
-        throw new Error("Error al mapear el programa");
+        throw error;
     }
 };
 
 const programasToProgramasDtos = async (programas) => {
     try {
+
         const programaDtoPromises = programas.map(async programa => {
-            const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaborador);
-            return programaToProgramaDto(programa, colaborador);
+            const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
+            const colaboradorAsignado = await buscarColaboradorByIdOrDocumento(programa.colaboradorResponsable);
+            return programaToProgramaDto(programa, colaborador, colaboradorAsignado);
         });
         const programasDto = await Promise.all(programaDtoPromises);
         return programasDto;
     } catch (error) {
-        throw new Error("Error al mapear los programas");
+        throw new Error(error.message);
     }
 }
 

@@ -1,14 +1,20 @@
 const { userToUserDto, usersToUsersDto } = require("../../aplicacion/mappers/user.mapper");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
+const { buscarRolByName, crearRolInicial } = require("../helpers/rol.helpers");
 const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser } = require("../helpers/user.helpers");
 
 
 //funcion para crear el usuario
 const crearUser = async(colaborador, datos) => {
+    let rol;
     try {
-        const user = crearInstanciaUser(datos, colaborador);
+        rol = await buscarRolByName("COLABORADOR");
+        if(!rol){
+            rol = await crearRolInicial();
+        }
+        const user = crearInstanciaUser(datos, colaborador, rol);
         const userSaved = await guardarUser(user);
-        const userDto = userToUserDto(userSaved, colaborador);
+        const userDto = userToUserDto(userSaved, colaborador, rol);
         return userDto;
     } catch (error) {
         throw new Error("Error al crear el usuario del colaborador");

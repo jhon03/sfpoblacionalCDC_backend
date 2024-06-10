@@ -66,6 +66,7 @@ const cambiarEstadoColaborador = (colaborador, estado = "") => {
 
 const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentificacion = "" ) => {
     try {
+    
         const colaborador = await Colaborador.findOne({
             $or: [
                 {idColaborador},

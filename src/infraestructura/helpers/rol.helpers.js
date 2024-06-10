@@ -83,6 +83,19 @@ const updateRol = (rol, datos={} ) => {
     } catch (error) {
         throw new Error(error.message);
     }
+};
+
+const crearRolInicial = async () => {
+    try {
+        const rol = crearInstanciaRol({
+            nombreRol: "colaborador",
+            descripcion: "Este el rol basico de inicio"
+        });
+        await rol.save();
+        return rol;
+    } catch (error) {
+        throw error;
+    }
 }
 
 
@@ -92,6 +105,7 @@ module.exports = {
     buscarRolByName,
     cambiarEstadoRol,
     crearInstanciaRol,
+    crearRolInicial,
     guardarRol,
     updateRol
 }

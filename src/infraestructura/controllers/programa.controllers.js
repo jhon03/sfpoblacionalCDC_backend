@@ -2,7 +2,7 @@ const { programaToProgramaDto, programasToProgramasDtos } = require("../../aplic
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
 const { validarFormato, convertirClavesAMayusculas } = require("../helpers/formato.helpers");
 const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
-const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma } = require("../helpers/programa.helpers");
+const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma, obtenerProgramaConfirmacion } = require("../helpers/programa.helpers");
 
 const crearPrograma = async (req, res) => {
     let {colaborador } = req;
@@ -43,13 +43,30 @@ const obtenerListaProgramas = async (req, res) => {
     }
 };
 
+const obtenerProgramasEnEspera = async (req, res) => {
+    try {
+        const programas = await obtenerProgramaConfirmacion();
+        const programasDto = await programasToProgramasDtos(programas);
+        return res.json({
+            msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
+            programas: programasDto,
+        })
+    } catch (error) {
+        return  res.status(400).json({
+            msg: "Error al obtener la lista de programas en espera de confirmacion",
+            error: error.message
+        })
+    }
+}
+
 const actualizarPrograma = async (req, res) => {
     let {programa, body: datos} = req;
     try {
         await updatePrograma(programa, datos);
-        const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaborador);
+        const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
         const programaActualizado = await guardarPrograma(programa);
-        const programaDto = programaToProgramaDto(programaActualizado, colaborador);
+        const colaboradorAsignado = await buscarColaboradorByIdOrDocumento(programa.colaboradorResponsable);
+        const programaDto = programaToProgramaDto(programaActualizado, colaborador, colaboradorAsignado);
         return res.json({
             msg: "El programa ha sido actualizado correctamente",
             programa: programaDto
@@ -68,7 +85,8 @@ const desactivarPrograma= async(req, res) => {
         await updatePrograma(programa, {estado: "DESACTIVAR"});
         const programaDesactivado = await guardarPrograma(programa);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaborador);
-        const programaDto = programaToProgramaDto(programaDesactivado, colaborador);
+        const colaboradorAsignado = await buscarColaboradorByIdOrDocumento(programa.colaboradorResponsable);
+        const programaDto = programaToProgramaDto(programaDesactivado, colaborador, colaboradorAsignado);
         return res.json({
             msg: "Programa desactivado correctamente",
             programa: programaDto
@@ -88,7 +106,8 @@ const activarPrograma = async (req, res) => {
         await updatePrograma(programa, {estado: "ACTIVAR"});
         const programaActivado = await guardarPrograma(programa);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaborador);
-        const programaDto = programaToProgramaDto(programaActivado, colaborador);
+        const colaboradorAsignado = await buscarColaboradorByIdOrDocumento(programa.colaboradorResponsable);
+        const programaDto = programaToProgramaDto(programaActivado, colaborador, colaboradorAsignado);
         return res.json({
             msg: "Programa activado correctamente",
             programa: programaDto
@@ -99,13 +118,38 @@ const activarPrograma = async (req, res) => {
             error: error.message
         })
     }
+};
+
+const confirmaPrograma = async (req, res) => {
+    let {programa, colaborador: colaboradorAsignado} = req;
+    try {
+        if(programa.estado === "ACTIVO") throw new Error("El programa ya asido validado y confirmado");
+        await updatePrograma(programa, {estado: "CONFIRMAR"});
+        programa.colaboradorResponsable = colaboradorAsignado.idColaborador;
+        const programaActivado = await guardarPrograma(programa);
+        const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
+        const programaDto = programaToProgramaDto(programaActivado, colaborador, colaboradorAsignado);
+        return res.json({
+            msg: "Programa confirmado correctamente, se asigno correctamnete el colaborador responsable",
+            programa: programaDto
+        })
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al confirmar el programa",
+            error: error.message,
+        })
+    }
 }
+
+
 
 
 module.exports = {
     actualizarPrograma,
     activarPrograma,
     crearPrograma,
+    confirmaPrograma,
     desactivarPrograma,
     obtenerListaProgramas,
+    obtenerProgramasEnEspera
 }

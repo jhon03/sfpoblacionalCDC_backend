@@ -22,6 +22,11 @@ const userSchema = Schema({
         required: [true, 'La contraseña es requerida']
     },
 
+    rol: {
+        type: String,
+        required: [true, 'El rol del usuario es requerido']
+    },
+
     estado: {
         type: String,
         default: "ACTIVO"

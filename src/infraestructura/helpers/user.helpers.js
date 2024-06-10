@@ -19,14 +19,15 @@ const buscarUsers = async() => {
     }
 };
 
-const crearInstanciaUser = (datos, colaborador) => {
+const crearInstanciaUser = (datos, colaborador, rol) => {
     let { nombreUsuario, contrasena} = datos;
     try {
         const user = new User({
             idUsuario: generarId(),
             colaborador: colaborador.idColaborador,
             nombreUsuario,
-            contrasena
+            contrasena,
+            rol: rol.idRol,
         });
         return user;
     } catch (error) {
@@ -124,6 +125,15 @@ const findUserByUsername = async(nombreUsuario="") => {
     }
 };
 
+const findUserByColaborador = async(idColaborador = "") => {
+    try {
+        const user = await User.findOne({colaborador:idColaborador});
+        return user;
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 
 module.exports = {
@@ -132,6 +142,7 @@ module.exports = {
     buscarUserById,
     buscarUsers,
     findUserByUsername,
+    findUserByColaborador,
     cambiarEstadoUser,
     contrasenaEsValida,
     crearInstanciaUser,
