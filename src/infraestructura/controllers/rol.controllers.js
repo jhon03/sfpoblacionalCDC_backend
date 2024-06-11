@@ -60,6 +60,7 @@ const activarRol = async (req, res) => {
     try {
         if(rol.estado) throw new Error("El rol ya se encuetra activo");
         cambiarEstadoRol(rol, "ACTIVAR");
+        await guardarRol(rol);
         const rolDto = rolToRolDto(rol);
         return res.json({
             msg: "Rol activado correctamente",
@@ -78,6 +79,7 @@ const desactivarRol = async (req, res) => {
     try {
         if(!rol.estado) throw new Error("El rol se encuentra esta inactivo");
         cambiarEstadoRol(rol, "DESACTIVAR");
+        await guardarRol(rol);
         const rolDto = rolToRolDto(rol);
         return res.json({
             msg:"Rol desactivado correctamente",
@@ -96,6 +98,7 @@ const actualizarRol = async (req, res) => {
     try {
         const cambios = updateRol(rol, datos);
         if(!cambios) throw new Error("No has realizado ningun cambio en el rol");
+        await guardarRol(rol);
         const rolDto = rolToRolDto(rol);
         return res.json({
             msg: "Rol actualizado correctamente",

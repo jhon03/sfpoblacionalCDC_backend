@@ -35,7 +35,7 @@ const buscarRoleById = async (idRol="") => {
 
 const buscarRolByName = async (nombreRol="") => {
     try {
-        const rol = Rol.findOne({nombreRol});
+        const rol = Rol.findOne({nombreRol:nombreRol.toUpperCase()});
         return rol;
     } catch (error) {
         throw new Error(error.message);
@@ -72,6 +72,7 @@ const updateRol = (rol, datos={} ) => {
     let { nombreRol, descripcion } = datos;
     try {
         let cambios = false;
+        console.log(nombreRol.toUpperCase() !== rol.nombreRol);
         if(nombreRol && nombreRol.toUpperCase() !== rol.nombreRol){
             rol.nombreRol = nombreRol.toUpperCase();
             cambios = true;
@@ -79,7 +80,8 @@ const updateRol = (rol, datos={} ) => {
         if(descripcion && descripcion.toUpperCase() !== rol.descripcion){
             rol.descripcion = descripcion.toUpperCase();
             cambios = true;
-        }
+        };
+        return cambios;
     } catch (error) {
         throw new Error(error.message);
     }

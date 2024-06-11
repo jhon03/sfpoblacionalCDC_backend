@@ -5,6 +5,7 @@ const { getPersonaById } = require('../helpers/personas.helpers');
 const { buscarUserById, findUserByUsername } = require('../helpers/user.helpers');
 const { buscarRoleById } = require('../helpers/rol.helpers');
 
+//middleware obtener modelos por parametros en la uri
 
 const obtenerTipoIdentificacion = (validar= false) => {
     return async (req, res, next) => {
@@ -137,7 +138,7 @@ const obtenerRol = (validar=false) => {
         try {
             const rol = await buscarRoleById(idRol);
             if(!rol) throw new Error("No existe el usuario con el id: " + idUsuario);
-            if(validar && rol.estado){
+            if(validar && !rol.estado){
                 return res.status(404).json({
                     msg: `El rol con el id ${idRol} se encuentra inactivo`
                 })

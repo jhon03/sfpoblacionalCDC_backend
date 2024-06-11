@@ -2,6 +2,7 @@ const { crearInstanciaPersona, guardarPersona, obtenerPersonas, getPersonaById, 
 const { personaToPersonaDto, personasToPersonasDto } = require('../../aplicacion/mappers/persona.mappers');
 const { convertirValuesToUpperCase } = require("../helpers/formato.helpers");
 const { obtenerProgramaById } = require("../helpers/programa.helpers");
+const { buscarIdentificacionByIdOrName } = require("../helpers/tipoIdentificacion.helpers");
 
 const registrarPersona = async (req, res) => {
     let {programa, body: datos} = req;
