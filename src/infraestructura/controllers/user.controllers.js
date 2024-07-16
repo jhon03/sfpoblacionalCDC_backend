@@ -5,17 +5,8 @@ const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actuali
 
 
 //funcion para crear el usuario
-const crearUser = async(colaborador, datos, admin=false) => {
-    let rol;
+const crearUser = async(colaborador, datos, rol) => {
     try {
-        if(!admin){
-            rol = await buscarRolByName("COLABORADOR");
-            if(!rol){
-                rol = await crearRolInicial();
-            }
-        } else {
-            rol = await buscarRolByName("ADMINISTRADOR");
-        }
         const user = crearInstanciaUser(datos, colaborador, rol); 
         const userSaved = await guardarUser(user);
         const userDto = userToUserDto(userSaved, colaborador, rol);

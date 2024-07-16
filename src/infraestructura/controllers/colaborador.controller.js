@@ -8,7 +8,7 @@ const { obtenerFechaColombia } = require('../helpers/globales.helpers');
 
 
 const registrarColaborador = async (req, res) => {
-    let { tipoIdentificacion, body:datos } = req
+    let { tipoIdentificacion, body:datos, rol } = req
     try {
         contrasenaEsValida(datos.contrasena);
         encryptarContra(datos)
@@ -17,7 +17,7 @@ const registrarColaborador = async (req, res) => {
         };
         let colaborador = crearInstanciaColaborador(datos);
         await guardarColaborador(colaborador);
-        let userDto = await crearUser(colaborador, datos);
+        let userDto = await crearUser(colaborador, datos, rol);
         const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
         return res.status(201).json({
             msg: 'EL colaborador a sido creado correctamente',

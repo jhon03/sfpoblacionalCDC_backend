@@ -3,7 +3,7 @@ const { listColaboradores, registrarColaborador, desactivarColaborador, activarC
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposColaborador, checkCamposUser } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
-const { obtenerTipoIdentificacion, obtenerColaborador, obtenerUsuarioByUserName } = require('../middlewares/obtenerModelos.middleware');
+const { obtenerTipoIdentificacion, obtenerColaborador, obtenerUsuarioByUserName, obtenerRol } = require('../middlewares/obtenerModelos.middleware');
 
 const router = new Router;
 
@@ -12,7 +12,8 @@ const camposPermitidosColaborador = [
     'numeroIdentificacion',
     'nombreColaborador',
     'nombreUsuario',
-    'contrasena'
+    'contrasena',
+    'rol'
 ]
 
 router.get('/listColaboradores', listColaboradores);
@@ -23,7 +24,8 @@ router.post('/crear', [
     checkCamposUser,
     validarCampos,
     obtenerTipoIdentificacion(validar= true),
-    obtenerUsuarioByUserName(validar=true)
+    obtenerUsuarioByUserName(validar=true),
+    obtenerRol(true),
 ], registrarColaborador);
 
 router.delete('/desactivar/:idColaborador', [

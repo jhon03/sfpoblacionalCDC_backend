@@ -25,7 +25,7 @@ const crearUserAdmin = async () => {
             let userDto = await crearUser(colaborador, datos, true);
             console.log("usuario administrador creado correctamente " + userDto);
         };
-        console.log("creando colaborador desde la terminal " + adminExits);
+        console.log("El usuario administrador a sido creado con exito ");
     } catch (error) {  
         console.log(error.message);
     }
