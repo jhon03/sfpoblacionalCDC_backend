@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const { dbConecction } = require('../../config/db/mongoDB.db'); 
+const { crearUserAdmin } = require('../../config/admin/userAdmin.js');
 
 class Server { 
 
@@ -40,6 +41,7 @@ class Server {
 
     async listen(){
         await dbConecction();
+        await crearUserAdmin();
         this.app.listen(this.port, () => {
             console.log('servidor iniciado en el puerto ', this.port);
         })

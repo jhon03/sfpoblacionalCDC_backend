@@ -39,6 +39,7 @@ router.get('/findById/:idColaborador', [
 ], buscarColaboradorById);
 
 router.put('/actualizar/:idColaborador', [
+    validateCamposPermitidos(camposPermitidosColaborador),
     obtenerColaborador(validar=true)
 ], actualizarColaborador);
 

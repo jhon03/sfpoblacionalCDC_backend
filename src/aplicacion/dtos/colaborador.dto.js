@@ -10,6 +10,7 @@ class ColaboradorDto {
         this.nombre = datos.nombreColaborador;
         this.fechaCreacion = datos.fechaCreacion;
         this.fechaModificacion = datos.fechaModificacion;
+        this.estado = datos.estado;
     }
 };
 

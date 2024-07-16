@@ -84,6 +84,9 @@ const updateColaborador = (colaborador, datos = {}) => {
     let {nombreColaborador} = datos;
     try {
         nombreColaborador = nombreColaborador.toUpperCase();
+        if(nombreColaborador === ''){
+            throw new Error('El nombre de colaborador no puede estar en blanco');
+        }
         if( nombreColaborador === colaborador.nombreColaborador){
             throw new Error("El nombre que deseas colocar ya lo tienes");
         };
