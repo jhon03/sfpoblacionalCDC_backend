@@ -1,7 +1,7 @@
 const { userToUserDto, usersToUsersDto } = require("../../aplicacion/mappers/user.mapper");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
 const { buscarRolByName, crearRolInicial } = require("../helpers/rol.helpers");
-const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser } = require("../helpers/user.helpers");
+const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser, buscarUserById } = require("../helpers/user.helpers");
 
 
 //funcion para crear el usuario
@@ -100,7 +100,7 @@ const updateUser = async (req, res) => {
         const userDto = userToUserDto(userSaved, colaborador);
         return res.json({
             msg: "Usuario actualizado correctamente",
-            user: userDto
+            usuario: userDto
         })
         
     } catch (error) {
