@@ -1,4 +1,12 @@
 
+const validarclaves = (objetoOriginal, objetoPeticion) => {
+    for(let c in objetoPeticion){
+        c = c.toUpperCase();
+        if(!objetoOriginal[c]){
+            throw new Error(`El campo ${c} no esta permitido`);
+        }
+    };
+}
 
 const validarFormato = (formato) => {
 
@@ -59,4 +67,5 @@ module.exports = {
     convertirValuesToUpperCase,
     compararDatosPersonaWithFormato,
     validarFormato,
+    validarclaves
 }

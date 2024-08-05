@@ -1,18 +1,17 @@
 const { programaToProgramaDto, programasToProgramasDtos } = require("../../aplicacion/mappers/programa.mapper");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
-const { validarFormato, convertirClavesAMayusculas } = require("../helpers/formato.helpers");
+const { validarFormato, convertirClavesAMayusculas, validarclaves } = require("../helpers/formato.helpers");
 const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
 const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma, obtenerProgramaConfirmacion } = require("../helpers/programa.helpers");
 
 const crearPrograma = async (req, res) => {
     let {colaborador } = req;
-    let {formato, nombrePrograma} = req.body
+    let {informacion, nombrePrograma} = req.body
     try {
-        formato = convertirClavesAMayusculas(formato);
-        validarFormato(formato);
-
+        informacion = convertirClavesAMayusculas(informacion);
+        //validarFormato(formato);
         if( await buscarProgramaByName(nombrePrograma)) throw new Error("Ya existe un programa con el nombre: " + nombrePrograma)
-        const programa = crearInstanciaPrograma({nombrePrograma, formato}, colaborador);
+        const programa = crearInstanciaPrograma({nombrePrograma, informacion}, colaborador);
         await guardarPrograma(programa);
         const programaDto = programaToProgramaDto(programa, colaborador);
         return res.status(201).json({
@@ -26,6 +25,7 @@ const crearPrograma = async (req, res) => {
         })
     }
 };
+
 
 const obtenerListaProgramas = async (req, res) => {
     try {
@@ -62,6 +62,7 @@ const obtenerProgramasEnEspera = async (req, res) => {
 const actualizarPrograma = async (req, res) => {
     let {programa, body: datos} = req;
     try {
+        validarclaves(programa.informacion, datos.informacion);
         await updatePrograma(programa, datos);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
         const programaActualizado = await guardarPrograma(programa);

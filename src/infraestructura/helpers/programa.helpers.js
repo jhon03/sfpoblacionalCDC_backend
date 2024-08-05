@@ -10,7 +10,7 @@ const crearInstanciaPrograma = (datos, colaborador) => {
             colaboradorCreador: colaborador.idColaborador,
             nombrePrograma: datos.nombrePrograma.toUpperCase(),
             fechaCreacion: obtenerFechaColombia(),
-            formato: datos.formato,
+            informacion: datos.informacion,
         });
         return programa;
     } catch (error) {
@@ -67,7 +67,7 @@ const buscarProgramaByName = async( nombrePrograma = "") => {
 };
 
 const updatePrograma = async (programa, datos = {} ) => {
-    let {estado, nombrePrograma, formato} = datos;
+    let {estado, nombrePrograma, informacion} = datos;
     try {
 
         const personas = await obtenerPersonasEnPrograma(programa.idPrograma);
@@ -82,13 +82,13 @@ const updatePrograma = async (programa, datos = {} ) => {
             if(nombrePrograma.toUpperCase() !== programa.nombrePrograma) {
                 programa.nombrePrograma = nombrePrograma.toUpperCase();
             };
-            if( personas.length > 0 ){
-                throw new Error("No se puede actualizar el formato del programa, ya que hay personas en el programa");
-            };
+
+            informacion = convertirClavesAMayusculas(informacion);
+            //validarFormato(informacion); 
+            programa.informacion = informacion;
+
+
             
-            formato = convertirClavesAMayusculas(formato);
-            validarFormato(formato);
-            programa.formato = formato;
         }
     } catch (error) {
         throw new Error(error.message || error);

@@ -10,7 +10,7 @@ const router = new Router();
 
 const camposPermitidos = [
     "nombrePrograma",
-    "formato",
+    "informacion",
 ]
 
 router.put('/actualizar/:idPrograma', [
