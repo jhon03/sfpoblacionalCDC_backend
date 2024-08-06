@@ -25,6 +25,10 @@ exports.checkCamposPrograma = [
     //check("informacion.*", "los campos de la informacion deben ser de tipo string").custom(todosCamposSonString)
 ]
 
+exports.checkCamposFormatoPrograma = [
+    
+]
+
 exports.checkCamposRol = [
     check('nombreRol', 'El nombre del rol es requerido').not().isEmpty(),
     check('nombreRol', 'El nombre del rol debe ser de tipo string').isString(),

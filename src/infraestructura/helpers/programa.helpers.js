@@ -85,10 +85,7 @@ const updatePrograma = async (programa, datos = {} ) => {
 
             informacion = convertirClavesAMayusculas(informacion);
             //validarFormato(informacion); 
-            programa.informacion = informacion;
-
-
-            
+            programa.informacion = informacion;  
         }
     } catch (error) {
         throw new Error(error.message || error);

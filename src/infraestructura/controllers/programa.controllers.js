@@ -1,6 +1,6 @@
 const { programaToProgramaDto, programasToProgramasDtos } = require("../../aplicacion/mappers/programa.mapper");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
-const { validarFormato, convertirClavesAMayusculas, validarclaves } = require("../helpers/formato.helpers");
+const { validarFormato, convertirClavesAMayusculas, validarclaves, objetosIguales } = require("../helpers/formato.helpers");
 const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
 const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma, obtenerProgramaConfirmacion } = require("../helpers/programa.helpers");
 
@@ -10,7 +10,8 @@ const crearPrograma = async (req, res) => {
     try {
         informacion = convertirClavesAMayusculas(informacion);
         //validarFormato(formato);
-        if( await buscarProgramaByName(nombrePrograma)) throw new Error("Ya existe un programa con el nombre: " + nombrePrograma)
+        const buscarPrograma = await buscarProgramaByName(nombrePrograma);
+        if( buscarPrograma ) throw new Error("Ya existe un programa con el nombre: " + nombrePrograma)
         const programa = crearInstanciaPrograma({nombrePrograma, informacion}, colaborador);
         await guardarPrograma(programa);
         const programaDto = programaToProgramaDto(programa, colaborador);
@@ -25,6 +26,26 @@ const crearPrograma = async (req, res) => {
         })
     }
 };
+
+const crearFormatoPrograma = async (req, res) => {
+    let {programa, body: datos} = req;
+    try {
+        validarFormato(datos);
+        programa.formato = datos;
+        await guardarPrograma(programa);
+        const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
+        const programaDto = programaToProgramaDto(programa, colaborador);
+        return res.status(201).json({
+            msg: "El formato a sido añadido correctamente al programa",
+            programa: programaDto
+        })
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al crear el formato del programa",
+            error: error.message
+        })
+    }
+}
 
 
 const obtenerListaProgramas = async (req, res) => {
@@ -62,7 +83,11 @@ const obtenerProgramasEnEspera = async (req, res) => {
 const actualizarPrograma = async (req, res) => {
     let {programa, body: datos} = req;
     try {
+        datos.informacion = convertirClavesAMayusculas(datos.informacion);
         validarclaves(programa.informacion, datos.informacion);
+        if( objetosIguales(programa.informacion, datos.informacion) ) {
+            throw new Error(`no has realizado ningun cambio en el objeto`)
+        };
         await updatePrograma(programa, datos);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
         const programaActualizado = await guardarPrograma(programa);
@@ -149,6 +174,7 @@ module.exports = {
     actualizarPrograma,
     activarPrograma,
     crearPrograma,
+    crearFormatoPrograma,
     confirmaPrograma,
     desactivarPrograma,
     obtenerListaProgramas,

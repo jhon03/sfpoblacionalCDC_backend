@@ -1,6 +1,6 @@
 
 const { Router } = require('express');
-const { crearPrograma, obtenerListaProgramas, actualizarPrograma, desactivarPrograma, activarPrograma, confirmaPrograma, obtenerProgramasEnEspera } = require('../controllers/programa.controllers');
+const { crearPrograma, obtenerListaProgramas, actualizarPrograma, desactivarPrograma, activarPrograma, confirmaPrograma, obtenerProgramasEnEspera, crearFormatoPrograma } = require('../controllers/programa.controllers');
 const { obtenerColaborador, obtenerPrograma } = require('../middlewares/obtenerModelos.middleware');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposPrograma } = require('../helpers/validarCamposCheck.helpers');
@@ -26,6 +26,10 @@ router.post('/:idColaborador/crearPrograma', [
     checkCamposPrograma,
     validarCampos,
 ], crearPrograma);
+
+router.post('/crearFormato/:idPrograma', [
+    obtenerPrograma(validar=true)
+], crearFormatoPrograma);
 
 router.get('/desactivar/:idPrograma', [
     obtenerPrograma(validar = true),

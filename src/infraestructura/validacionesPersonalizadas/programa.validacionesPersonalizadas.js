@@ -10,4 +10,5 @@ exports.todosCamposSonString = (value) => {
     }
 };
 
+
 exports.noEstaVacio = (value) => Object.keys(value).length > 0;
