@@ -41,4 +41,13 @@ exports.checkCamposUser = [
     check('nombreUsuario', 'El nombre de usuario debe ser de tipo string').isString(),
     check('contrasena', 'La contrasena es requerida').not().isEmpty(),
     check('contrasena', 'la contrasena debe ser de tipo string').isString(),
+    check('rol', 'El rol es requerido').not().isEmpty(),
+    check('rol', 'El rol debe de ser de tipo string').isString(),
+]
+
+exports.checkCamposLogin = [
+    check('nombreUsuario', 'El nombre de usuario es requerido').not().isEmpty(),
+    check('nombreUsuario', 'El nombre de usuario debe ser de tipo string').isString(),
+    check('contrasena', 'La contrasena es requerida').not().isEmpty(),
+    check('contrasena', 'La contrasena debe ser de tipo string').isString(),
 ]

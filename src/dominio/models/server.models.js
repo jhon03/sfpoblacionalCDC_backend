@@ -11,6 +11,7 @@ class Server {
         this.port = process.env.PORT;
 
         this.paths = {
+            auth:          '/api/auth',
             colaboradores: '/api/colaboradores',
             identificacion:'/api/identificaciones',
             programa:      '/api/programa',
@@ -37,6 +38,7 @@ class Server {
         this.app.use(this.paths.persona, require('../../infraestructura/routes/persona.routes.js'));
         this.app.use(this.paths.rol, require('../../infraestructura/routes/rol.routes.js'));
         this.app.use(this.paths.user, require('../../infraestructura/routes/user.routes.js'));
+        this.app.use(this.paths.auth, require('../../infraestructura/routes/auth.routes.js'));
     };
 
     async listen(){

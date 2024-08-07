@@ -1,4 +1,20 @@
 const bcryptjs = require('bcryptjs');
+const { buscarUserById, findUserByUsername } = require('./user.helpers');
+
+const validarUsuario = async (idUsuario = "", nombreUsuario="") => {
+    try {
+        let usuario;
+        if (idUsuario) {
+            usuario = await buscarUserById(idUsuario);
+        } else{
+            usuario = await findUserByUsername(nombreUsuario);
+        }
+        if(!usuario) throw new Error("El usuario con el id: " + idUsuario + " no existe");
+        return usuario;
+    } catch (error) {
+        throw error;
+    }
+}
 
 const validarContrasenaUsuario = (usuario, contrasena = '') => {
     try {
@@ -22,5 +38,6 @@ const encryptarContra = (datos) => {
 
 module.exports = {
     encryptarContra,
-    validarContrasenaUsuario
+    validarContrasenaUsuario,
+    validarUsuario,
 }

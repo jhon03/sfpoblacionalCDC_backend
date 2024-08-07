@@ -6,11 +6,18 @@ const { validateCamposPermitidos } = require('../middlewares/validarCampos.middl
 const { checkCamposPrograma } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
 const { obtenerProgramaConfirmacion } = require('../helpers/programa.helpers');
+const { validarJWT } = require('../middlewares/jwt.middleware');
+const { userRolPermitido } = require('../middlewares/auth.middleware');
 const router = new Router();
 
 const camposPermitidos = [
     "nombrePrograma",
     "informacion",
+]
+
+const rolesPermitidos = [
+    "ADMINISTRADOR",
+
 ]
 
 router.put('/actualizar/:idPrograma', [
@@ -28,6 +35,8 @@ router.post('/:idColaborador/crearPrograma', [
 ], crearPrograma);
 
 router.post('/crearFormato/:idPrograma', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     obtenerPrograma(validar=true)
 ], crearFormatoPrograma);
 

@@ -52,7 +52,7 @@ const desactivarColaborador = async (req, res) => {
     const { colaborador } = req
     try {
         cambiarEstadoColaborador(colaborador, "DESACTIVAR");
-        const colaboradorEli = await guardarColaborador(colaborador);
+        //const colaboradorEli = await guardarColaborador(colaborador);
         return res.json({
             msg: `El colaborador ${colaborador.nombreColaborador} ha sido eliminado correctamente`,
         })
