@@ -2,12 +2,13 @@ const { buscarRoleById } = require("../helpers/rol.helpers");
 const { buscarUserByColaborador } = require("../helpers/user.helpers");
 
 
-const userRolPermitido = (roles = []) => {
+const userRolPermitido = (roles = [], actMismoUser=false) => {
     return async(req, res, next) => {
-        const {user} = req;
+        const {userSession} = req;
         try {
-            const rol = await buscarRoleById(user.rol);
-            if(!roles.includes(rol.nombre)) {
+            
+            const rol = await buscarRoleById(userSession.rol);
+            if(!roles.includes(rol.nombreRol)) {
                 return res.status(400).json({
                     msg: 'No tienes permiso para realizar esta acción'
                 })

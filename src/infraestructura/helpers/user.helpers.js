@@ -1,4 +1,5 @@
 const User = require('../../dominio/models/user.models');
+const { encryptarContra } = require('./globales.helpers');
 const { generarId } = require('./globales.helpers');
 
 const guardarUser = async(user, session) => {
@@ -84,6 +85,7 @@ const actualizarUser =  (user, datos={}) => {
         if(contrasena && user.contrasena !== contrasena){
             contrasenaEsValida(contrasena);
             user.contrasena = contrasena;
+            encryptarContra(user);
             cambios = true;
         }
         return cambios;

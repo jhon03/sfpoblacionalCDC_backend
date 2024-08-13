@@ -23,7 +23,7 @@ const validarJWT = async(req= request, res = response, next) => {
         // }
 
         const usuario = await validarUsuario(uuid);        
-        req.user = usuario;
+        req.userSession = usuario;
 
         next();
     } catch (error) {

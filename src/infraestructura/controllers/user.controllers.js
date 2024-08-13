@@ -91,6 +91,7 @@ const desactivarUser = async (req, res) => {
 const updateUser = async (req, res) => {
     let { user, body: datos } = req;
     try {
+        
         const hayCambios = actualizarUser(user, datos);
         if(!hayCambios){
             throw new Error("No has hecho ningun cambio en el usuarios")

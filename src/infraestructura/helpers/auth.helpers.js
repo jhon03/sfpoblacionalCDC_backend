@@ -4,12 +4,15 @@ const { buscarUserById, findUserByUsername } = require('./user.helpers');
 const validarUsuario = async (idUsuario = "", nombreUsuario="") => {
     try {
         let usuario;
+        let mensaje;
         if (idUsuario) {
             usuario = await buscarUserById(idUsuario);
+            mensaje = "El usuario con el id: " + idUsuario + " no existe";
         } else{
             usuario = await findUserByUsername(nombreUsuario);
+            mensaje = "El usuario con el nombre de usuario: " + nombreUsuario + " no existe";
         }
-        if(!usuario) throw new Error("El usuario con el id: " + idUsuario + " no existe");
+        if(!usuario) throw new Error(mensaje);
         return usuario;
     } catch (error) {
         throw error;
@@ -27,17 +30,8 @@ const validarContrasenaUsuario = (usuario, contrasena = '') => {
     }
 };
 
-const encryptarContra = (datos) => {
-    try {
-      const salt = bcryptjs.genSaltSync();  //encriptar nueva contraseña
-      datos.contrasena= bcryptjs.hashSync( datos.contrasena, salt);
-    } catch (error) {
-      throw new Error(`Error al encryptar la contraseña: ${error.message}`);
-    }
-}
 
 module.exports = {
-    encryptarContra,
     validarContrasenaUsuario,
     validarUsuario,
 }

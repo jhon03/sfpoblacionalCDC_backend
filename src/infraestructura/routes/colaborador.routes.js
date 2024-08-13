@@ -4,9 +4,15 @@ const { validateCamposPermitidos } = require('../middlewares/validarCampos.middl
 const { checkCamposColaborador, checkCamposUser } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
 const { obtenerTipoIdentificacion, obtenerColaborador, obtenerUsuarioByUserName, obtenerRol } = require('../middlewares/obtenerModelos.middleware');
-const { noDeletedUserDependRol } = require('../middlewares/auth.middleware');
+const { noDeletedUserDependRol, userRolPermitido } = require('../middlewares/auth.middleware');
+const { validarJWT } = require('../middlewares/jwt.middleware');
 
 const router = new Router;
+
+const rolesPermitidos = [
+    "SUPERUSER",
+    "ADMINISTRADOR"
+]
 
 const camposPermitidosColaborador = [
     'tipoIdentificacion',
@@ -20,6 +26,8 @@ const camposPermitidosColaborador = [
 router.get('/listColaboradores', listColaboradores);
 
 router.post('/crear', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     validateCamposPermitidos(camposPermitidosColaborador),
     checkCamposColaborador,
     checkCamposUser,

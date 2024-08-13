@@ -2,7 +2,15 @@ const {Router} = require('express');
 const { findUsers, findUserById, activarUser, updateUser } = require('../controllers/user.controllers');
 const { obtenerUser } = require('../middlewares/obtenerModelos.middleware');
 const { desactivarRol } = require('../controllers/rol.controllers');
+const { userRolPermitido } = require('../middlewares/auth.middleware');
+const { validarJWT } = require('../middlewares/jwt.middleware');
+
 const router = new Router();
+
+const rolesPermitidos = [
+    "SUPERUSER",
+    "ADMINISTRADOR"
+]
 
 router.get('/listUsers', findUsers);
 
@@ -15,11 +23,13 @@ router.get('/activar/:idUser', [
 ], activarUser);
 
 router.delete('/desactivar/:idUser', [
-    obtenerUser()
+    obtenerUser(validar=true)
 ], desactivarRol);
 
 router.put('/actualizar/:idUser', [
-    obtenerUser()
+    validarJWT,
+    obtenerUser(validar=true),
+    userRolPermitido(rolesPermitidos)
 ], updateUser);
 
 module.exports = router;

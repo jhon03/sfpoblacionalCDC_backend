@@ -1,5 +1,5 @@
 const { crearUser } = require("../../infraestructura/controllers/user.controllers");
-const { encryptarContra } = require("../../infraestructura/helpers/auth.helpers");
+const { encryptarContra } = require("../../infraestructura/helpers/globales.helpers");
 const { buscarColaboradorByIdOrDocumento, obtenerColaboradorByIdentificacion, crearInstanciaColaborador, guardarColaborador } = require("../../infraestructura/helpers/colaborador.helpers");
 const { buscarRolByName, crearInstanciaRol, guardarRol } = require("../../infraestructura/helpers/rol.helpers");
 const { buscarIdentificacionByIdOrName, crearInstanciaIdentificacion, guardarIdentificacion } = require("../../infraestructura/helpers/tipoIdentificacion.helpers");

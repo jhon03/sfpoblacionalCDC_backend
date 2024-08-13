@@ -4,12 +4,19 @@ const { obtenerRol } = require('../middlewares/obtenerModelos.middleware');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposRol } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
+const { validarJWT } = require('../middlewares/jwt.middleware');
+const { userRolPermitido } = require('../middlewares/auth.middleware');
 
 const router = new Router();
 
 const camposPermitidosRol = [
     'nombreRol',
     'descripcion'
+]
+
+const rolesPermitidos = [
+    "ADMINISTRADOR",
+    "SUPERUSER"
 ]
 
 router.get('/listRols', findRoles);
@@ -19,6 +26,8 @@ router.get('/findRolById/:idRol', [
 ], FindRolById);
 
 router.post('/crear', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     validateCamposPermitidos(camposPermitidosRol),
     checkCamposRol,
     validarCampos
