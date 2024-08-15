@@ -36,7 +36,11 @@ router.post('/:idColaborador/crearPrograma', [
     validarCampos,
 ], crearPrograma);
 
-
+router.post('/crearFormato/:idPrograma', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
+    obtenerPrograma(validar=true)
+], crearFormatoPrograma);
 
 router.get('/desactivar/:idPrograma', [
     obtenerPrograma(validar = true),
