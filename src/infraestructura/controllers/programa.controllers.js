@@ -27,25 +27,6 @@ const crearPrograma = async (req, res) => {
     }
 };
 
-const crearFormatoPrograma = async (req, res) => {
-    let {programa, body: datos} = req;
-    try {
-        validarFormato(datos);
-        programa.formato = datos;
-        await guardarPrograma(programa);
-        const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
-        const programaDto = programaToProgramaDto(programa, colaborador);
-        return res.status(201).json({
-            msg: "El formato a sido añadido correctamente al programa",
-            programa: programaDto
-        })
-    } catch (error) {
-        return res.status(400).json({
-            msg: "Error al crear el formato del programa",
-            error: error.message
-        })
-    }
-}
 
 
 const obtenerListaProgramas = async (req, res) => {
@@ -147,16 +128,19 @@ const activarPrograma = async (req, res) => {
 };
 
 const confirmaPrograma = async (req, res) => {
-    let {programa, colaborador: colaboradorAsignado} = req;
+    let {programa, colaborador: colaboradorAsignado, body:datos} = req;
     try {
+        validarFormato(datos);
         if(programa.estado === "ACTIVO") throw new Error("El programa ya asido validado y confirmado");
         await updatePrograma(programa, {estado: "CONFIRMAR"});
         programa.colaboradorResponsable = colaboradorAsignado.idColaborador;
+        programa.formato = datos;
+
         const programaActivado = await guardarPrograma(programa);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
         const programaDto = programaToProgramaDto(programaActivado, colaborador, colaboradorAsignado);
         return res.json({
-            msg: "Programa confirmado correctamente, se asigno correctamnete el colaborador responsable",
+            msg: "Programa confirmado correctamente, se asigno correctamnete el colaborador responsable y se asigno el formato",
             programa: programaDto
         })
     } catch (error) {
@@ -165,7 +149,28 @@ const confirmaPrograma = async (req, res) => {
             error: error.message,
         })
     }
-}
+};
+
+//endpoint antiguo inactivo
+// const crearFormatoPrograma = async (req, res) => {
+//     let {programa, body: datos} = req;
+//     try {
+//         validarFormato(datos);
+//         programa.formato = datos;
+//         await guardarPrograma(programa);
+//         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
+//         const programaDto = programaToProgramaDto(programa, colaborador);
+//         return res.status(201).json({
+//             msg: "El formato a sido añadido correctamente al programa",
+//             programa: programaDto
+//         })
+//     } catch (error) {
+//         return res.status(400).json({
+//             msg: "Error al crear el formato del programa",
+//             error: error.message
+//         })
+//     }
+// }
 
 
 
@@ -174,7 +179,6 @@ module.exports = {
     actualizarPrograma,
     activarPrograma,
     crearPrograma,
-    crearFormatoPrograma,
     confirmaPrograma,
     desactivarPrograma,
     obtenerListaProgramas,

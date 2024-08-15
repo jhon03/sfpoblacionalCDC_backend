@@ -17,7 +17,7 @@ const camposPermitidos = [
 
 const rolesPermitidos = [
     "ADMINISTRADOR",
-
+    "ADMINISTRADOR_PROYECTOS",
 ]
 
 router.put('/actualizar/:idPrograma', [
@@ -28,17 +28,15 @@ router.put('/actualizar/:idPrograma', [
 ], actualizarPrograma);
 
 router.post('/:idColaborador/crearPrograma', [
+    //validarJWT,
+    //userRolPermitido(rolesPermitidos),
     validateCamposPermitidos(camposPermitidos),
     obtenerColaborador(validar = true),
     checkCamposPrograma,
     validarCampos,
 ], crearPrograma);
 
-router.post('/crearFormato/:idPrograma', [
-    validarJWT,
-    userRolPermitido(rolesPermitidos),
-    obtenerPrograma(validar=true)
-], crearFormatoPrograma);
+
 
 router.get('/desactivar/:idPrograma', [
     obtenerPrograma(validar = true),
@@ -52,10 +50,19 @@ router.get('/obtenerProgramas', obtenerListaProgramas)
 
 router.get('/obtenerProgramasConfirmacion', obtenerProgramasEnEspera);
 
-router.get('/confirmar/:idPrograma/colAsignado/:idColaborador', [
+router.post('/confirmar/:idPrograma/colAsignado/:idColaborador', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     obtenerPrograma(validar=true),
-    obtenerColaborador(validar=true)
+    obtenerColaborador(validar=true),
 ], confirmaPrograma);
+
+//endpoint antiguo inactivo
+// router.post('/crearFormato/:idPrograma', [
+//     validarJWT,
+//     userRolPermitido(rolesPermitidos),
+//     obtenerPrograma(validar=true)
+// ], crearFormatoPrograma);
 
 
 module.exports = router;
