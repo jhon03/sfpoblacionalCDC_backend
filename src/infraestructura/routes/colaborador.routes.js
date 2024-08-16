@@ -24,7 +24,8 @@ const camposPermitidosColaborador = [
 ]
 
 router.get('/listColaboradores', [
-    validarJWT
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
 ], listColaboradores);
 
 router.post('/crear', [
@@ -40,19 +41,26 @@ router.post('/crear', [
 ], registrarColaborador);
 
 router.delete('/desactivar/:idColaborador', [
+    validarJWT,
     obtenerColaborador(validar= true),
-    noDeletedUserDependRol,
+    noDeletedUserDependRol(rolesPermitidos),
 ], desactivarColaborador);
 
 router.get('/activar/:idColaborador', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     obtenerColaborador(),
 ], activarColaborador);
 
 router.get('/findById/:idColaborador', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     obtenerColaborador(validar = true),
 ], buscarColaboradorById);
 
 router.put('/actualizar/:idColaborador', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     validateCamposPermitidos(camposPermitidosColaborador),
     obtenerColaborador(validar=true)
 ], actualizarColaborador);

@@ -2,7 +2,7 @@ const { buscarRoleById } = require("../helpers/rol.helpers");
 const { buscarUserByColaborador } = require("../helpers/user.helpers");
 
 
-const userRolPermitido = (roles = [], actMismoUser=false) => {
+const userRolPermitido = (roles = [], accedertMismoUser=false) => {
     return async(req, res, next) => {
         const {userSession} = req;
         try {
@@ -23,22 +23,24 @@ const userRolPermitido = (roles = [], actMismoUser=false) => {
     }
 };
 
-const noDeletedUserDependRol = async (req, res, next) => {
-    const {colaborador} = req;
-    try {
-        const user = await buscarUserByColaborador(colaborador.idColaborador);
-        const rol = await buscarRoleById(user.rol);
-        if(rol.nombreRol === "SUPERUSER"){   
+const noDeletedUserDependRol = (roles=[]) => {
+    return async (req, res, next) => {
+        const {colaborador} = req;
+        try {
+            const user = await buscarUserByColaborador(colaborador.idColaborador);
+            const rol = await buscarRoleById(user.rol);
+            if(!roles.includes(rol.nombreRol)){   
+                return res.status(400).json({
+                    msg: 'No puedes eliminar al administrador de la app'
+                })
+            };
+            next();
+        } catch (error) {
             return res.status(400).json({
-                msg: 'No puedes eliminar al administrador de la app'
+                msg: "Error al validar el colaborador a eliminar",
+                error: error.message
             })
-        };
-        next();
-    } catch (error) {
-        return res.status(400).json({
-            msg: "Error al validar el colaborador a eliminar",
-            error: error.message
-        })
+        }
     }
 }
 

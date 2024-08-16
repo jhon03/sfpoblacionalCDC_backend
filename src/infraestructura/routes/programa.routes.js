@@ -16,6 +16,7 @@ const camposPermitidos = [
 ]
 
 const rolesPermitidos = [
+    "SUPERUSER",
     "ADMINISTRADOR",
     "ADMINISTRADOR_PROYECTOS",
 ]

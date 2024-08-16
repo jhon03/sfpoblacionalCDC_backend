@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const { dbConecction } = require('../../config/db/mongoDB.db'); 
 const { crearUserAdmin } = require('../../config/admin/userAdmin.js');
+const { limitPayloadSize } = require('../../infraestructura/middlewares/security.middleware.js');
 
 class Server { 
 
@@ -25,9 +26,11 @@ class Server {
 
     };
 
+
     middlewares(){
         this.app.use( cors( { origin: process.env.ORIGIN_WEB, credentials: true} ));
         this.app.use( express.json() ); 
+        this.app.use(limitPayloadSize);
     };
 
     routes(){
