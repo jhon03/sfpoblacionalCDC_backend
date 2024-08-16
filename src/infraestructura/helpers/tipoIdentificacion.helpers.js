@@ -24,9 +24,12 @@ const guardarIdentificacion = async (identificacion) => {
     }
 };
 
-const buscarIdentificaciones = async () => {
+const buscarIdentificaciones = async (desde=0, limite=5) => {
     try {
-        const Identificaciones = await TipoIdentificacion.find({estado: true});
+        const Identificaciones = 
+            await TipoIdentificacion.find({estado: true})
+                .skip(desde)
+                .limit(limite);
         return Identificaciones;
     } catch (error) {
         console.log({error: error.message});

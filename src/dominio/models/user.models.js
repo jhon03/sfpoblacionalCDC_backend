@@ -30,6 +30,11 @@ const userSchema = Schema({
     estado: {
         type: String,
         default: "ACTIVO"
+    },
+    
+    refreshToken: {
+        type: String,
+        default: ""
     }
 
 });

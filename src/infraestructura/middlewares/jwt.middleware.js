@@ -1,7 +1,7 @@
 const { request, response } = require("express");
 
 const jwt = require('jsonwebtoken');
-const { obtenerToken, verificarToken, validarExpiracionToken } = require("../helpers/jwt.helpers");
+const { obtenerToken, verificarToken, validarExpiracionToken, validarTokenRe, generarJWT } = require("../helpers/jwt.helpers");
 const { validarUsuario } = require("../helpers/auth.helpers");
 
 const validarJWT = async(req= request, res = response, next) => {
@@ -16,11 +16,11 @@ const validarJWT = async(req= request, res = response, next) => {
     try {       
         const uuid = verificarToken(token, process.env.SECRETORPRIVATEKEY);
         const tokenDecoded = jwt.decode(token);
-        // if(validarExpiracionToken(tokenDecoded.exp) ){
-        //     await validarTokenRe(uid);
-        //     const tokenAcessoRenovado = await generarJWT(uid);
-        //     req.tokenRenovado = tokenAcessoRenovado;
-        // }
+        if(validarExpiracionToken(tokenDecoded.exp) ){
+            await validarTokenRe(uuid);
+            const tokenAcessoRenovado = await generarJWT(uuid);
+            req.tokenAcessoRenovado = tokenAcessoRenovado;
+        }
 
         const usuario = await validarUsuario(uuid);        
         req.userSession = usuario;

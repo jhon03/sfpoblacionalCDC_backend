@@ -36,18 +36,24 @@ const obtenerProgramaById = async (idPrograma) => {
     }
 };
 
-const obtenerProgramas = async() => {
+const obtenerProgramas = async(desde=0, limite=5) => {
     try {
-        const programas = await Programa.find({estado:"ACTIVO"});
+        const programas = await 
+            Programa.find({estado:"ACTIVO"})
+            .skip(desde)
+            .limit(limite);
         return programas;
     } catch (error) {
-        throw new Error("Errro al obtener los programas");
+        throw error;
     }
 };
 
-const obtenerProgramaConfirmacion = async () => {
+const obtenerProgramaConfirmacion = async (desde=0, hasta=5) => {
     try {
-        const programas= await Programa.find({estado:"EN PROCESO CONFIRMACION"});
+        const programas= await 
+            Programa.find({estado:"EN PROCESO CONFIRMACION"})
+                .skip(desde)
+                .limit(hasta);
         return programas;
     } catch (error) {
         throw error;

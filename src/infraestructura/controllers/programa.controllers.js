@@ -1,6 +1,8 @@
 const { programaToProgramaDto, programasToProgramasDtos } = require("../../aplicacion/mappers/programa.mapper");
+const { Programa } = require("../../dominio/models");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
 const { validarFormato, convertirClavesAMayusculas, validarclaves, objetosIguales } = require("../helpers/formato.helpers");
+const { obtenerPaginasDisponibles, getPagesAvalaible } = require("../helpers/globales.helpers");
 const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
 const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma, obtenerProgramaConfirmacion } = require("../helpers/programa.helpers");
 
@@ -30,10 +32,28 @@ const crearPrograma = async (req, res) => {
 
 
 const obtenerListaProgramas = async (req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    let { page } = req.query; 
+    const limit = 1;
+    const desde = (page-1) * limit;
+
     try {
-        const programas = await obtenerProgramas();
+        const paginasDisponibles = await getPagesAvalaible(Programa, {estado:"ACTIVO"}, limit, page);
+
+        const programas = await obtenerProgramas(desde, limit);
         const programasDto = await programasToProgramasDtos(programas);
+
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `se encontraron ${programas.length} programas`,
+                programas: programasDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `se encontraron ${programas.length} programas`,
             programas: programasDto
         })
@@ -46,10 +66,27 @@ const obtenerListaProgramas = async (req, res) => {
 };
 
 const obtenerProgramasEnEspera = async (req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    let { page } = req.query; 
+    const limit = 1;
+    const desde = (page-1) * limit;
+
     try {
-        const programas = await obtenerProgramaConfirmacion();
+        const paginasDisponibles = await getPagesAvalaible(Programa, {estado:"ACTIVO"}, limit, page);
+
+        const programas = await obtenerProgramaConfirmacion(desde, limit);
         const programasDto = await programasToProgramasDtos(programas);
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
+                programas: programasDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
             programas: programasDto,
         })

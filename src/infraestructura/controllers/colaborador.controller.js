@@ -1,10 +1,13 @@
 const { colaboradoresToColaboradoresDto, colaboradorToColaboradorDto } = require('../../aplicacion/mappers/colaborador.mapper');
 const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores, obtenerColaboradorByIdentificacion, cambiarEstadoColaborador, updateColaborador } = require('../helpers/colaborador.helpers');
-const { encryptarContra } = require('../helpers/globales.helpers');
+const { encryptarContra, obtenerPaginasDisponibles } = require('../helpers/globales.helpers');
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
 const { contrasenaEsValida} = require('../helpers/user.helpers');
 const { crearUser } = require('./user.controllers');
 const { obtenerFechaColombia } = require('../helpers/globales.helpers');
+const { Colaborador } = require('../../dominio/models');
+
+
 
 
 const registrarColaborador = async (req, res) => {
@@ -33,10 +36,28 @@ const registrarColaborador = async (req, res) => {
 }
 
 const listColaboradores = async (req, res) =>{
+    const {tokenAcessoRenovado} = req;
+    const { page } = req.query; 
+    const limit = 2;
+    const desde = (page-1) * limit;
+
     try {
-        const listColaboradores = await obtenerColaboradores();
+        
+        const paginasDisponibles = await getPagesAvalaible(Colaborador, {estado:"ACTIVO"}, limit, page);
+
+        const listColaboradores = await obtenerColaboradores(desde, limit);
         const listColaboradoresDto = await colaboradoresToColaboradoresDto(listColaboradores);
+
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `Se encontraron ${listColaboradores.length} colaboradores`,
+                colaboradores: listColaboradoresDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `Se encontraron ${listColaboradores.length} colaboradores`,
             colaboradores: listColaboradoresDto
         })
@@ -52,9 +73,9 @@ const desactivarColaborador = async (req, res) => {
     const { colaborador } = req
     try {
         cambiarEstadoColaborador(colaborador, "DESACTIVAR");
-        //const colaboradorEli = await guardarColaborador(colaborador);
+        const colaboradorEli = await guardarColaborador(colaborador);
         return res.json({
-            msg: `El colaborador ${colaborador.nombreColaborador} ha sido eliminado correctamente`,
+            msg: `El colaborador ${colaboradorEli.nombreColaborador} ha sido eliminado correctamente`,
         })
     } catch (error) {
         return res.status(400).json({

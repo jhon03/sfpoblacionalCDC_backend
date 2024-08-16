@@ -42,9 +42,12 @@ const buscarRolByName = async (nombreRol="") => {
     }
 }
 
-const buscarRoles = async () => {
+const buscarRoles = async (desde=0, hasta=5) => {
     try {
-        const roles = await Rol.find({estado:true});
+        const roles = 
+            await Rol.find({estado:true})
+                .skip(desde)
+                .limit(hasta);
         return roles;
     } catch (error) {
         throw new Error(error.message);

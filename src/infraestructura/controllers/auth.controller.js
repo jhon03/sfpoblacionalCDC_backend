@@ -1,25 +1,29 @@
 const { userToUserDto } = require("../../aplicacion/mappers/user.mapper");
 const { validarUsuario, validarContrasenaUsuario } = require("../helpers/auth.helpers");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
-const { generarJWT } = require("../helpers/jwt.helpers");
+const { generarJWT, generarJWTRefresh } = require("../helpers/jwt.helpers");
 const { buscarRoleById } = require("../helpers/rol.helpers");
+const { guardarUser } = require("../helpers/user.helpers");
 
 const login = async(req, res) => {
     try {
         const {nombreUsuario, contrasena} = req.body;      
-        const user = await validarUsuario("",nombreUsuario);
+        let user = await validarUsuario("",nombreUsuario);
+        validarContrasenaUsuario(user, contrasena);
+        
+        const refreshToken = await generarJWTRefresh(user.idUsuario);  //creamos y asignamos el token de refresco al user 
+        user.refreshToken = refreshToken;
+        await guardarUser(user)
+        
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
         const rol = await buscarRoleById(user.rol);
         const userDto = userToUserDto(user, colaborador, rol);
-        validarContrasenaUsuario(user, contrasena);
+        const tokenAcesso= await generarJWT(user.idUsuario);   //generar el JWT
 
-        const token = await generarJWT(user.idUsuario);   //generar el JWT
-        //const refreshToken = await generarJWTRefresh(usuario.id);       //genera un token de refresco cada vez que inicia sesion
-        //asignarTokenRefresh(usuario.id, refreshToken);
         return res.json({
             msg: `bienvenido ${user.nombreUsuario} has iniciado sesion correctamente`,
             usuario: userDto,
-            token,
+            tokenAcesso,
         })
         
     } catch (error) {
@@ -29,6 +33,25 @@ const login = async(req, res) => {
         })
     }
 };
+
+//endpoint para renovar token de acesso de usuario
+const renovarToken = async(req, res) =>{
+    try {
+        let { userSession } = req;
+        if(!refreshToken || refreshToken === null){
+            throw new Error('No posees un token de refreco')
+        }
+        const nuevoTokenAcesso = await generarJWT(usuario.id);
+        return res.json({
+            msg: 'token renovado con exito',
+            token: nuevoTokenAcesso,
+        })
+    } catch (error) {
+        return res.status(400).json({
+            msg: error.message
+        })
+    }
+}
 
 const registro =  (req, res) => {
     try {

@@ -1,5 +1,8 @@
 const { userToUserDto, usersToUsersDto } = require("../../aplicacion/mappers/user.mapper");
+const { user } = require("../../dominio/models");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
+const { getPagesAvalaible } = require("../helpers/globales.helpers");
+const { generarJWTRefresh } = require("../helpers/jwt.helpers");
 const { buscarRolByName, crearRolInicial } = require("../helpers/rol.helpers");
 const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser, buscarUserById } = require("../helpers/user.helpers");
 
@@ -7,7 +10,9 @@ const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actuali
 //funcion para crear el usuario
 const crearUser = async(colaborador, datos, rol) => {
     try {
-        const user = crearInstanciaUser(datos, colaborador, rol); 
+        let user = crearInstanciaUser(datos, colaborador, rol); 
+        const refreshToken = await generarJWTRefresh(user.idUsuario);
+        user.refreshToken = refreshToken;
         const userSaved = await guardarUser(user);
         const userDto = userToUserDto(userSaved, colaborador, rol);
         return userDto;
@@ -17,10 +22,28 @@ const crearUser = async(colaborador, datos, rol) => {
 };
 
 const findUsers = async(req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    let { page } = req.query; 
+    const limit = 2;
+    const desde = (page-1) * limit;
+
     try {
-        const users = await buscarUsers();
+
+        const paginasDisponibles = await getPagesAvalaible(user, {estado:"ACTIVO"}, limit, page);
+
+        const users = await buscarUsers(desde, limit);
         const usersDto = await usersToUsersDto(users);
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `Se encontraron ${usersDto.length} usuarios `,
+                usuarios: usersDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `Se encontraron ${usersDto.length} usuarios `,
             usuarios: usersDto
         })

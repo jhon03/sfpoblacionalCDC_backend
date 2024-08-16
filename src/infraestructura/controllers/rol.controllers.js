@@ -1,4 +1,6 @@
 const { rolToRolDto, rolsToRolsDto } = require("../../aplicacion/mappers/rol.mapper");
+const { Rol } = require("../../dominio/models");
+const { getPagesAvalaible } = require("../helpers/globales.helpers");
 const { crearInstanciaRol, guardarRol, buscarRoles, cambiarEstadoRol, updateRol, buscarRolByName } = require("../helpers/rol.helpers")
 
 const crearRol = async (req, res) => {
@@ -40,10 +42,26 @@ const FindRolById = (req, res) => {
 };
 
 const findRoles = async (req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    const { page } = req.query; 
+    const limit = 2;
+    const desde = (page-1) * limit;
     try {
-        const roles = await buscarRoles();
+        const paginasDisponibles = await getPagesAvalaible(Rol, {estado:true}, limit, page);
+
+        const roles = await buscarRoles(desde, limit);
         const rolesDto = rolsToRolsDto(roles);
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `Se encontraron ${roles.length} roles`,
+                roles: rolesDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `Se encontraron ${roles.length} roles`,
             roles: rolesDto
         })

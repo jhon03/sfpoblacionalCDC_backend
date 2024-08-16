@@ -1,5 +1,6 @@
 const { v4: uuid } = require('uuid');
 const bcryptjs = require('bcryptjs');
+const { Mongoose } = require('mongoose');
 
 const generarId = () => {
     try {
@@ -49,13 +50,39 @@ const encryptarContra = (datos) => {
     } catch (error) {
       throw new Error(`Error al encryptar la contraseña: ${error.message}`);
     }
+};
+
+
+const obtenerPaginasDisponibles = async(modelo, estadoBuscado = {}, numeroSaltosPag = 5) => {
+    try {
+        const allModels = await modelo.find(estadoBuscado);
+        const totalPaginas = Math.ceil(allModels.length / numeroSaltosPag);
+        return totalPaginas;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getPagesAvalaible = async(modelo, busqueda={estado:"ACTIVO"}, limit, page) => {
+    try {
+        page = Number(page);
+
+        if(isNaN(page) || page <= 0) throw new Error("El argumento page es requerido y debe ser un numero positivo");
+        const paginasDisponibles = await obtenerPaginasDisponibles(modelo , busqueda, limit);
+        if(paginasDisponibles < page) throw new Error("No existe la pagina: " + page);
+        return paginasDisponibles;
+    } catch (error) {
+        throw error;
+    }
 }
 
 
 
 module.exports = {
     generarId,
+    getPagesAvalaible,
     obtenerFechaColombia,
     validateCamposPermitidosHelper,
     encryptarContra,
+
 }

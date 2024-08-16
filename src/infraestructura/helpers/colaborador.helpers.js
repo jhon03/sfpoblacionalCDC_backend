@@ -26,9 +26,12 @@ const guardarColaborador = async (colaborador) => {
     }
 };
 
-const obtenerColaboradores = async() => {
+const obtenerColaboradores = async(desde=0, limite=5) => {
     try {
-        const listaColaboradores = await Colaborador.find({estado:"ACTIVO"});
+        const listaColaboradores = 
+            await Colaborador.find({estado:"ACTIVO"})
+                .skip(desde)
+                .limit(limite);
         return listaColaboradores;
     } catch (error) {
         throw new Error(error.message);

@@ -10,6 +10,7 @@ class UserDto {
         this.contrasena        = user.contrasena;
         this.rol               = rol.nombreRol;
         this.estado            = user.estado;
+        this.refreshToken      = user.refreshToken;
     }
 
 }

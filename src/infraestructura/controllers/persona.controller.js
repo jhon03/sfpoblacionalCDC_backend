@@ -3,6 +3,8 @@ const { personaToPersonaDto, personasToPersonasDto } = require('../../aplicacion
 const { convertirValuesToUpperCase } = require("../helpers/formato.helpers");
 const { obtenerProgramaById } = require("../helpers/programa.helpers");
 const { buscarIdentificacionByIdOrName } = require("../helpers/tipoIdentificacion.helpers");
+const { obtenerPaginasDisponibles } = require("../helpers/globales.helpers");
+const { Persona } = require("../../dominio/models");
 
 const registrarPersona = async (req, res) => {
     let {programa, body: datos} = req;
@@ -24,11 +26,28 @@ const registrarPersona = async (req, res) => {
 };
 
 const obtenerListaPersonas = async(req, res) => {
+    const {tokenAcessoRenovado} = req;
+    const { page } = req.query; 
+    const limit = 2;        //limite de modelos mostrados en pantalla
+    const desde = (page-1) * limit;
+
     try {
-        const personas = await obtenerPersonas();
+        const paginasDisponibles = await getPagesAvalaible(Persona, {estado:"ACTIVO"}, limit, page);
+
+        const personas = await obtenerPersonas(desde, limit);
         const personasDto = await personasToPersonasDto(personas);
+
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `Se encontraron ${personas.length} registradas`,
+                personas: personasDto,
+                tokenAcessoRenovado
+            })
+        };
         return res.json({
-            msg: `Se encontraron ${personas.length} registros`,
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
+            msg: `Se encontraron ${personas.length} registradas`,
             personas: personasDto,
         })
     } catch (error) {

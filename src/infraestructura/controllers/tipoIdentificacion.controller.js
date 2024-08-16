@@ -1,7 +1,6 @@
-const tipoIdentificacionDto = require('../../aplicacion/dtos/tipoIdentificacion.dto');
 const { identificacionToIdentificacionDto, identificacionesToIdentificacionesDto } = require('../../aplicacion/mappers/tipoIdentificacion.mapper');
-const TipoIdentificacion = require('../../dominio/models/tipoIdentificacion.models');
-const { generarId } = require('../helpers/globales.helpers');
+const { TipoIdentificacion } = require('../../dominio/models');
+const { getPagesAvalaible } = require('../helpers/globales.helpers');
 const { crearInstanciaIdentificacion, guardarIdentificacion, buscarIdentificaciones, actualizarIdentificacion } = require('../helpers/tipoIdentificacion.helpers');
 
 const crearIdentificacion = async (req, res) => {
@@ -25,12 +24,29 @@ const crearIdentificacion = async (req, res) => {
 };
 
 const obtenerIdentificaciones = async (req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    const { page } = req.query; 
+    const limit = 2;
+    const desde = (page-1) * limit;
+
     try {
 
-        const Identificaciones = await buscarIdentificaciones();
+        const paginasDisponibles = await getPagesAvalaible(TipoIdentificacion, {estado:true}, limit, page);
+
+        const Identificaciones = await buscarIdentificaciones(desde, limit);
         const IdentificacionesDto = identificacionesToIdentificacionesDto(Identificaciones);
 
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `Se encontraron ${Identificaciones.length} identificacion(es)`,
+                Identificaciones: IdentificacionesDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `Se encontraron ${Identificaciones.length} identificacion(es)`,
             Identificaciones: IdentificacionesDto
         })

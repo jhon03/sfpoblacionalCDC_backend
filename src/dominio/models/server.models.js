@@ -16,7 +16,6 @@ class Server {
             identificacion:'/api/identificaciones',
             programa:      '/api/programa',
             persona:       '/api/persona',
-            registro:      '/api/registro',
             rol:           '/api/rol',
             user:          '/api/user',
         };
