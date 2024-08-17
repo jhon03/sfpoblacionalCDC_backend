@@ -24,8 +24,8 @@ const camposPermitidosColaborador = [
 ]
 
 router.get('/listColaboradores', [
-    validarJWT,
-    userRolPermitido(rolesPermitidos),
+    //validarJWT,
+    //userRolPermitido(rolesPermitidos),
 ], listColaboradores);
 
 router.post('/crear', [

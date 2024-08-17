@@ -1,6 +1,6 @@
 const { colaboradoresToColaboradoresDto, colaboradorToColaboradorDto } = require('../../aplicacion/mappers/colaborador.mapper');
 const { crearInstanciaColaborador, guardarColaborador, obtenerColaboradores, obtenerColaboradorByIdentificacion, cambiarEstadoColaborador, updateColaborador } = require('../helpers/colaborador.helpers');
-const { encryptarContra, obtenerPaginasDisponibles } = require('../helpers/globales.helpers');
+const { encryptarContra, obtenerPaginasDisponibles, getPagesAvalaible } = require('../helpers/globales.helpers');
 const { buscarIdentificacionByIdOrName } = require('../helpers/tipoIdentificacion.helpers');
 const { contrasenaEsValida} = require('../helpers/user.helpers');
 const { crearUser } = require('./user.controllers');

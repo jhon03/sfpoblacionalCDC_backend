@@ -2,7 +2,7 @@ const { userToUserDto, usersToUsersDto } = require("../../aplicacion/mappers/use
 const { user } = require("../../dominio/models");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
 const { getPagesAvalaible } = require("../helpers/globales.helpers");
-const { generarJWTRefresh } = require("../helpers/jwt.helpers");
+const { generarJWTRefresh, validarExpiracionToken } = require("../helpers/jwt.helpers");
 const { buscarRolByName, crearRolInicial } = require("../helpers/rol.helpers");
 const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser, buscarUserById } = require("../helpers/user.helpers");
 

@@ -1,18 +1,26 @@
 const { userToUserDto } = require("../../aplicacion/mappers/user.mapper");
 const { validarUsuario, validarContrasenaUsuario } = require("../helpers/auth.helpers");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
-const { generarJWT, generarJWTRefresh } = require("../helpers/jwt.helpers");
+const { generarJWT, generarJWTRefresh, validarExpiracionToken, decodificarToken } = require("../helpers/jwt.helpers");
 const { buscarRoleById } = require("../helpers/rol.helpers");
 const { guardarUser } = require("../helpers/user.helpers");
 
 const login = async(req, res) => {
     try {
-        const {nombreUsuario, contrasena} = req.body;      
+        const {nombreUsuario, contrasena} = req.body;   
         let user = await validarUsuario("",nombreUsuario);
         validarContrasenaUsuario(user, contrasena);
-        
-        const refreshToken = await generarJWTRefresh(user.idUsuario);  //creamos y asignamos el token de refresco al user 
-        user.refreshToken = refreshToken;
+        const tokenRefresco = user.refreshToken;
+        if(tokenRefresco){
+            const decodedToken = decodificarToken(tokenRefresco);
+            if(decodedToken && validarExpiracionToken(decodedToken.exp)){
+                const refreshToken = await generarJWTRefresh(user.idUsuario);    //creamos y asignamos el token de refresco al user 
+                user.refreshToken = refreshToken;
+            }        
+        } else {
+            const refreshToken = await generarJWTRefresh(user.idUsuario);    //creamos y asignamos el token de refresco al user 
+            user.refreshToken = refreshToken;
+        }
         await guardarUser(user)
         
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);

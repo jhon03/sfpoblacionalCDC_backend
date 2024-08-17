@@ -72,10 +72,21 @@ const validarTokenRe = async (uid) => {
     } catch (error) {
         throw new Error('error al validar el token de refresco : ' + error.message);
     }
+};
+
+
+const decodificarToken = (token) => {
+    try {
+        const tokenDecoded = jwt.decode(token);
+        return tokenDecoded;
+    } catch (error) {
+        throw error;
+    }
 }
 
 
 module.exports = {
+    decodificarToken,
     generarJWT,
     generarJWTRefresh,
     obtenerToken,

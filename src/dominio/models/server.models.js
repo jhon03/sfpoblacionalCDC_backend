@@ -1,9 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+const { xss } = require('express-xss-sanitizer');
+const mongoSanitaze = require("express-mongo-sanitize");
+
 
 const { dbConecction } = require('../../config/db/mongoDB.db'); 
 const { crearUserAdmin } = require('../../config/admin/userAdmin.js');
-const { limitPayloadSize } = require('../../infraestructura/middlewares/security.middleware.js');
+const { limitPayloadSize, limitPeticionIp, limitSpeedPeticion } = require('../../infraestructura/middlewares/security.middleware.js');
 
 class Server { 
 
@@ -30,7 +33,15 @@ class Server {
     middlewares(){
         this.app.use( cors( { origin: process.env.ORIGIN_WEB, credentials: true} ));
         this.app.use( express.json() ); 
-        this.app.use(limitPayloadSize);
+        this.app.use(limitPayloadSize);         //limitamos la cantidad de datos de la peticion
+        this.app.use(mongoSanitaze()) //evitar inyeccion no sql 
+        this.app.use(xss());  //sanitizacion datos evitar site scripting xss
+        this.app.use(   //limita la cantidad de peticiones * x minutos
+            limitPeticionIp( process.env.CANT_MINUTOS_PETICION, process.env.LIMITE_PETICIONES_IP)
+        );        
+        this.app.use(      //limita la velocidad de las peticiones x en una ventana de x minutos
+            limitSpeedPeticion(process.env.CANT_MINUTES_EVALUATED, process.env.LIMIT_AFTER_CAN_PETICION, process.env.SECONDS_DELAY)
+        ); 
     };
 
     routes(){

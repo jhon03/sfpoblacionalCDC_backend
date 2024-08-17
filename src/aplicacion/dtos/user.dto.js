@@ -7,10 +7,8 @@ class UserDto {
         this.idColaborador     = colaborador.idColaborador;
         this.nombreColaborador = colaborador.nombreColaborador;
         this.nombreUsuario     = user.nombreUsuario;
-        this.contrasena        = user.contrasena;
         this.rol               = rol.nombreRol;
         this.estado            = user.estado;
-        this.refreshToken      = user.refreshToken;
     }
 
 }

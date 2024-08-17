@@ -10,7 +10,7 @@ const camposPermitidos = [
     "contrasena"
 ]
 
-router.post('/login', [
+router.post('/login', [ 
     validateCamposPermitidos(camposPermitidos),
     checkCamposLogin,
     validarCampos
