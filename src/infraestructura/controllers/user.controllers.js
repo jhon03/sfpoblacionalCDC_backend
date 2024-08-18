@@ -3,7 +3,7 @@ const { user } = require("../../dominio/models");
 const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
 const { getPagesAvalaible } = require("../helpers/globales.helpers");
 const { generarJWTRefresh, validarExpiracionToken } = require("../helpers/jwt.helpers");
-const { buscarRolByName, crearRolInicial } = require("../helpers/rol.helpers");
+const { buscarRolByName, crearRolInicial, buscarRoleById } = require("../helpers/rol.helpers");
 const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser, buscarUserById } = require("../helpers/user.helpers");
 
 
@@ -60,7 +60,8 @@ const findUserById = async(req, res) => {
     const { user } = req;
     try {
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
-        const userDto = userToUserDto(user, colaborador);
+        const rol = await buscarRoleById(user.rol);
+        const userDto = userToUserDto(user, colaborador, rol);
         return res.json({
             msg: "Usuario encontrado correctamente",
             usuario: userDto
@@ -79,7 +80,8 @@ const activarUser = async (req, res) => {
         if(user.estado === "ACTIVO") throw new Error("El usuario se encunetra activo")
         cambiarEstadoUser(user, "ACTIVAR");
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
-        const userDto = userToUserDto(user, colaborador);
+        const rol = await buscarRoleById(user.rol);
+        const userDto = userToUserDto(user, colaborador, rol);
         return res.json({
             msg:"Usuario activado correctamente",
             usuario: userDto
@@ -98,7 +100,8 @@ const desactivarUser = async (req, res) => {
         if(user.estado === "INACTIVO") throw new Error("El usuario se encuentra inactivo")
         cambiarEstadoUser(user, "DESACTIVAR");
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
-        const userDto = userToUserDto(user, colaborador);
+        const rol = await buscarRoleById(user.rol);
+        const userDto = userToUserDto(user, colaborador, rol);
         return res.json({
             msg:"Usuario desactivado correctamente",
             usuario: userDto
@@ -121,7 +124,8 @@ const updateUser = async (req, res) => {
         };
         const userSaved = await guardarUser(user);
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
-        const userDto = userToUserDto(userSaved, colaborador);
+        const rol = await buscarRoleById(user.rol);
+        const userDto = userToUserDto(userSaved, colaborador, rol);
         return res.json({
             msg: "Usuario actualizado correctamente",
             usuario: userDto
@@ -130,6 +134,26 @@ const updateUser = async (req, res) => {
     } catch (error) {
         return res.status(400).json({
             msg:"Error al actualizar el usuario",
+            error: error.message
+        })
+    }
+};
+
+const obtenerUserActual = async (req, res) => {
+    const {userSession} = req;
+    try {
+
+        const colaborador = await buscarColaboradorByIdOrDocumento(userSession.colaborador);
+        const rol = await buscarRoleById(userSession.rol);
+        const userDto = userToUserDto(userSession, colaborador, rol);
+        return res.json({
+            msg: "usuario actualmente en sesion",
+            usuario: userDto
+        })
+        
+    } catch (error) {
+        return res.status(400).json({
+            msg: 'error al obtener al usuario actual',
             error: error.message
         })
     }
@@ -142,4 +166,5 @@ module.exports = {
     findUserById,
     findUsers,
     updateUser,
+    obtenerUserActual,
 }

@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const { findUsers, findUserById, activarUser, updateUser } = require('../controllers/user.controllers');
+const { findUsers, findUserById, activarUser, updateUser, obtenerUserActual } = require('../controllers/user.controllers');
 const { obtenerUser } = require('../middlewares/obtenerModelos.middleware');
 const { desactivarRol } = require('../controllers/rol.controllers');
 const { userRolPermitido } = require('../middlewares/auth.middleware');
@@ -24,6 +24,10 @@ router.get('/findById/:idUser', [
 router.get('/activar/:idUser', [
     obtenerUser(),
 ], activarUser);
+
+router.get('/getCurrentUser', [
+    validarJWT
+], obtenerUserActual)
 
 router.delete('/desactivar/:idUser', [
     obtenerUser(validar=true)

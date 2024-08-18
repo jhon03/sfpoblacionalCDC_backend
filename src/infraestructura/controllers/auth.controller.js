@@ -44,7 +44,8 @@ const validateSessionUser = (req, res) => {
         })
     } catch (error) {
         return res.status(401).json({
-            error: 'token expirado o invalido'
+            msg: 'token expirado o invalido',
+            error: error.message
         })
     }
 }
