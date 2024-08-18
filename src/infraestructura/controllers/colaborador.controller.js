@@ -6,6 +6,7 @@ const { contrasenaEsValida} = require('../helpers/user.helpers');
 const { crearUser } = require('./user.controllers');
 const { obtenerFechaColombia } = require('../helpers/globales.helpers');
 const { Colaborador } = require('../../dominio/models');
+const { request } = require('express');
 
 
 
@@ -35,14 +36,14 @@ const registrarColaborador = async (req, res) => {
     }
 }
 
-const listColaboradores = async (req, res) =>{
+const listColaboradores = async (req= request, res) =>{
     const {tokenAcessoRenovado} = req;
     const { page } = req.query; 
     const limit = 2;
     const desde = (page-1) * limit;
 
     try {
-        
+
         const paginasDisponibles = await getPagesAvalaible(Colaborador, {estado:"ACTIVO"}, limit, page);
 
         const listColaboradores = await obtenerColaboradores(desde, limit);

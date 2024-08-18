@@ -12,7 +12,10 @@ const rolesPermitidos = [
     "ADMINISTRADOR"
 ]
 
-router.get('/listUsers', findUsers);
+router.get('/listUsers', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
+], findUsers);
 
 router.get('/findById/:idUser', [
     obtenerUser(validar= true),

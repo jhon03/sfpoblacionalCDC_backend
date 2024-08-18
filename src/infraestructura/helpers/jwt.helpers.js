@@ -65,6 +65,7 @@ const verificarToken = (token = '', claveSecreta = '') => {
     }
 };
 
+//helper para validar el token de refresco de un user que esta en el bd
 const validarTokenRe = async (uid) => {
     try {
         const refreshToken = await obtenerRefreshToken(uid);
@@ -74,7 +75,7 @@ const validarTokenRe = async (uid) => {
     }
 };
 
-
+//helper para decodificar e token del usuario
 const decodificarToken = (token) => {
     try {
         const tokenDecoded = jwt.decode(token);
@@ -82,11 +83,28 @@ const decodificarToken = (token) => {
     } catch (error) {
         throw error;
     }
-}
+};
+
+//helper para refrescar el token de refresco en la bd en caso de ser necesario
+const manejarTokenDeRefresco = async (user) => {
+    const refreshToken = user.refreshToken;
+    if ( refreshToken && esTokenValido(user.refreshToken)) {
+        user.refreshToken = await generarJWTRefresh(user.idUsuario);
+    } else {
+        user.refreshToken = await generarJWTRefresh(user.idUsuario);
+    }
+};
+
+const esTokenValido = (tokenRefresco) => {
+    const decodedToken = decodificarToken(tokenRefresco);
+    const istokenExpired = validarExpiracionToken(decodedToken.exp);
+    return istokenExpired;
+};
 
 
 module.exports = {
     decodificarToken,
+    manejarTokenDeRefresco,
     generarJWT,
     generarJWTRefresh,
     obtenerToken,
