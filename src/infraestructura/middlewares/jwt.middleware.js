@@ -14,14 +14,13 @@ const validarJWT = async(req= request, res = response, next) => {
     }
 
     try {       
-        const uuid = verificarToken(token, process.env.SECRETORPRIVATEKEY);
+        const {uuid, rol} = verificarToken(token, process.env.SECRETORPRIVATEKEY);
         const tokenDecoded = jwt.decode(token);
         if(validarExpiracionToken(tokenDecoded.exp) ){
             await validarTokenRe(uuid);
-            const tokenAcessoRenovado = await generarJWT(uuid);
+            const tokenAcessoRenovado = await generarJWT(uuid, rol);
             req.tokenAcessoRenovado = tokenAcessoRenovado;
         }
-
         const usuario = await validarUsuario(uuid);        
         req.userSession = usuario;
 

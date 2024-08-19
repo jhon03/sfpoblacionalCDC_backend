@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken');
 const { obtenerRefreshToken } = require('./user.helpers');
 
-const generarJWT = (uuid ='') => {
+const generarJWT = (uuid = '', rol= '') => {
     
     return new Promise( (resolve, rejec) =>{
-        const payload = {uuid};
+        const payload = {uuid, rol};
 
         jwt.sign(payload, process.env.SECRETORPRIVATEKEY, {
             expiresIn: process.env.EXPIRATE_JWT_ACCESS
@@ -46,7 +46,7 @@ const validarExpiracionToken = (expiracion) =>{
     try {
         const ahora = Math.floor(Date.now() / 1000);
         const diferencia = (expiracion - ahora) / 60;
-        console.log(`si la diferencia es menor a 10 se renueva el token, diferencia: ${diferencia}`);
+        //console.log(`si la diferencia es menor a 10 se renueva el token, diferencia: ${diferencia}`);
         if(diferencia <= 10){
             return true;
         }
@@ -58,8 +58,8 @@ const validarExpiracionToken = (expiracion) =>{
 
 const verificarToken = (token = '', claveSecreta = '') => {
     try {
-        const {uuid} = jwt.verify(token, claveSecreta);
-        return uuid;
+        const tokenDecoded = jwt.verify(token, claveSecreta);
+        return tokenDecoded;
     } catch (error) {
         throw error;
     }

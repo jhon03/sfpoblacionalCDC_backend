@@ -17,7 +17,7 @@ const login = async(req, res) => {
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
         const rol = await buscarRoleById(user.rol);
         const userDto = userToUserDto(user, colaborador, rol);
-        const tokenAcesso= await generarJWT(user.idUsuario);   //generar el JWT
+        const tokenAcesso= await generarJWT(user.idUsuario, rol.nombreRol);   //generar el JWT
 
         return res.json({
             msg: `bienvenido ${user.nombreUsuario} has iniciado sesion correctamente`,
