@@ -58,6 +58,34 @@ const obtenerIdentificaciones = async (req, res) => {
     }
 };
 
+//endpoint para obtener las entidades sin paginacion
+const obtenerIdentificacionesNormal = async (req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    try {
+
+        const Identificaciones = await buscarIdentificaciones();
+        const IdentificacionesDto = identificacionesToIdentificacionesDto(Identificaciones);
+
+        if(tokenAcessoRenovado){
+            return res.json({
+                msg: `Se encontraron ${Identificaciones.length} identificacion(es)`,
+                Identificaciones: IdentificacionesDto,
+                tokenAcessoRenovado
+            })
+        }
+        return res.json({
+            msg: `Se encontraron ${Identificaciones.length} identificacion(es)`,
+            Identificaciones: IdentificacionesDto
+        })
+    } catch (error) {
+        return res.status(400).json({
+            msg: 'Error al obtener las identificaciones',
+            error: error.message
+        })
+    }
+};
+
 const actualizarTipoIdentificacion = async (req, res) => {
     const { nombreIdentificacion } = req.body;
     let tipoIdentificacion = req.tipoIdentificacion;
@@ -125,4 +153,5 @@ module.exports = {
     crearIdentificacion,
     desactivarTipoIdentificacion,
     obtenerIdentificaciones,
+    obtenerIdentificacionesNormal
 }

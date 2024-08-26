@@ -25,7 +25,7 @@ const crearRol = async (req, res) => {
     }
 };
 
-const FindRolById = (req, res) => {
+const findRolById = (req, res) => {
     const { rol } = req;
     try {
         const rolDto = rolToRolDto(rol);
@@ -72,6 +72,31 @@ const findRoles = async (req, res) => {
         })
     }
 };
+
+//endpoint para obtener las entidades sin paginacion
+const findRolsNormal = async (req, res) => {
+    const {tokenAcessoRenovado} = req;
+    try {
+        const roles = await buscarRoles();
+        const rolesDto = rolsToRolsDto(roles);
+        if(tokenAcessoRenovado){
+            return res.json({
+                msg: `Se encontraron ${roles.length} roles`,
+                roles: rolesDto,
+                tokenAcessoRenovado
+            })
+        }
+        return res.json({
+            msg: `Se encontraron ${roles.length} roles`,
+            roles: rolesDto
+        })
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al buscar los roles",
+            error: error.message
+        })
+    }
+}
 
 const activarRol = async (req, res) => {
     let { rol } = req;
@@ -136,6 +161,7 @@ module.exports = {
     crearRol,
     desactivarRol,
     findRoles,
-    FindRolById,  
+    findRolsNormal,
+    findRolById,  
 }
 

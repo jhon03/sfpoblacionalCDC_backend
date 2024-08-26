@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { findRoles, FindRolById, crearRol, actualizarRol, activarRol, desactivarRol } = require('../controllers/rol.controllers');
+const { findRoles, findRolById, crearRol, actualizarRol, activarRol, desactivarRol, findRolsNormal } = require('../controllers/rol.controllers');
 const { obtenerRol } = require('../middlewares/obtenerModelos.middleware');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposRol } = require('../helpers/validarCamposCheck.helpers');
@@ -19,11 +19,15 @@ const rolesPermitidos = [
     "SUPERUSER"
 ]
 
-router.get('/listRols', findRoles);
+router.get('/listRols', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
+], findRoles);
 
 router.get('/findRolById/:idRol', [
     obtenerRol(validar=true),
-], FindRolById);
+    userRolPermitido(rolesPermitidos),
+], findRolById);
 
 router.post('/crear', [
     validarJWT,
@@ -41,11 +45,20 @@ router.put('/actualizar/:idRol', [
 ], actualizarRol);
 
 router.get('/activar/:idRol', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     obtenerRol(),
 ], activarRol);
 
 router.delete('/desactivar/:idRol', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
     obtenerRol(),
 ], desactivarRol);
+
+router.get('/findRols', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
+], findRolsNormal);
 
 module.exports = router;
