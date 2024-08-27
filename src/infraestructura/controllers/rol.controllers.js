@@ -45,7 +45,7 @@ const findRoles = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
     const { page } = req.query; 
-    const limit = 2;
+    const limit = 8;
     const desde = (page-1) * limit;
     try {
         const paginasDisponibles = await getPagesAvalaible(Rol, {estado:true}, limit, page);

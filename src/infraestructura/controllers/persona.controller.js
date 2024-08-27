@@ -28,7 +28,7 @@ const registrarPersona = async (req, res) => {
 const obtenerListaPersonas = async(req, res) => {
     const {tokenAcessoRenovado} = req;
     const { page } = req.query; 
-    const limit = 2;        //limite de modelos mostrados en pantalla
+    const limit = 8;        //limite de modelos mostrados en pantalla
     const desde = (page-1) * limit;
 
     try {

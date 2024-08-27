@@ -35,7 +35,7 @@ const obtenerListaProgramas = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
     let { page } = req.query; 
-    const limit = 1;
+    const limit = 8;
     const desde = (page-1) * limit;
 
     try {

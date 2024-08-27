@@ -25,7 +25,7 @@ const findUsers = async(req, res) => {
 
     const {tokenAcessoRenovado} = req;
     let { page } = req.query; 
-    const limit = 2;
+    const limit = 4;
     const desde = (page-1) * limit;
 
     try {
@@ -34,16 +34,18 @@ const findUsers = async(req, res) => {
 
         const users = await buscarUsers(desde, limit);
         const usersDto = await usersToUsersDto(users);
-        if(tokenAcessoRenovado){
+        if(tokenAcessoRenovado){ 
             return res.json({
-                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                pagina: page,
+                paginasDis: paginasDisponibles,
                 msg: `Se encontraron ${usersDto.length} usuarios `,
                 usuarios: usersDto,
                 tokenAcessoRenovado
             })
         }
         return res.json({
-            pagina: `pagina ${page} de ${paginasDisponibles}`,
+            pagina: page,
+            paginasDis: paginasDisponibles,
             msg: `Se encontraron ${usersDto.length} usuarios `,
             usuarios: usersDto
         })
