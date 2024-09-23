@@ -112,9 +112,9 @@ const obtenerPersona = (validar = false) => {
 
 const obtenerUser = (validar=false) =>{
     return async (req, res, next) => {
-        const {idUsuario} = req.params;
+        const {idUser} = req.params;
         try {
-            const user = await buscarUserById(idUsuario);
+            const user = await buscarUserById(idUser);
             if(!user) throw new Error("No existe el usuario con el id: " + idUsuario);
             if(validar && user.estado === "INACTIVO"){
                 return res.status(404).json({

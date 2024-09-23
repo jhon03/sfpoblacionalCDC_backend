@@ -40,29 +40,31 @@ router.post('/crear', [
     obtenerRol(true),
 ], registrarColaborador);
 
-router.delete('/desactivar/:idColaborador', [
-    validarJWT,
-    obtenerColaborador(validar= true),
-    noDeletedUserDependRol(rolesPermitidos),
-], desactivarColaborador);
-
-router.get('/activar/:idColaborador', [
-    validarJWT,
-    userRolPermitido(rolesPermitidos),
-    obtenerColaborador(),
-], activarColaborador);
-
 router.get('/findById/:idColaborador', [
     validarJWT,
     userRolPermitido(rolesPermitidos),
     obtenerColaborador(validar = true),
 ], buscarColaboradorById);
 
-router.put('/actualizar/:idColaborador', [
-    validarJWT,
-    userRolPermitido(rolesPermitidos),
-    validateCamposPermitidos(camposPermitidosColaborador),
-    obtenerColaborador(validar=true)
-], actualizarColaborador);
+// router.delete('/desactivar/:idColaborador', [
+//     validarJWT,
+//     obtenerColaborador(validar= true),
+//     noDeletedUserDependRol(rolesPermitidos),
+// ], desactivarColaborador);
+
+// router.get('/activar/:idColaborador', [
+//     validarJWT,
+//     userRolPermitido(rolesPermitidos),
+//     obtenerColaborador(),
+// ], activarColaborador);
+
+
+
+// router.put('/actualizar/:idColaborador', [
+//     validarJWT,
+//     userRolPermitido(rolesPermitidos),
+//     validateCamposPermitidos(camposPermitidosColaborador),
+//     obtenerColaborador(validar=true)
+// ], actualizarColaborador);
 
 module.exports = router;

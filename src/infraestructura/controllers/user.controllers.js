@@ -1,7 +1,7 @@
 const { userToUserDto, usersToUsersDto } = require("../../aplicacion/mappers/user.mapper");
-const { user } = require("../../dominio/models");
-const { buscarColaboradorByIdOrDocumento } = require("../helpers/colaborador.helpers");
-const { getPagesAvalaible } = require("../helpers/globales.helpers");
+const { user, Colaborador } = require("../../dominio/models");
+const { buscarColaboradorByIdOrDocumento, cambiarEstadoColaborador, guardarColaborador } = require("../helpers/colaborador.helpers");
+const { getPagesAvalaible, cambiarEstado } = require("../helpers/globales.helpers");
 const { generarJWTRefresh, validarExpiracionToken } = require("../helpers/jwt.helpers");
 const { buscarRolByName, crearRolInicial, buscarRoleById } = require("../helpers/rol.helpers");
 const { crearInstanciaUser, guardarUser, buscarUsers, cambiarEstadoUser, actualizarUser, buscarUserById } = require("../helpers/user.helpers");
@@ -80,8 +80,9 @@ const activarUser = async (req, res) => {
     let { user } = req; 
     try {
         if(user.estado === "ACTIVO") throw new Error("El usuario se encunetra activo")
-        cambiarEstadoUser(user, "ACTIVAR");
+        cambiarEstado(user, "ACTIVAR")
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
+        cambiarEstado(colaborador, "ACTIVAR")
         const rol = await buscarRoleById(user.rol);
         const userDto = userToUserDto(user, colaborador, rol);
         return res.json({
@@ -100,8 +101,11 @@ const desactivarUser = async (req, res) => {
     let { user } = req; 
     try {
         if(user.estado === "INACTIVO") throw new Error("El usuario se encuentra inactivo")
-        cambiarEstadoUser(user, "DESACTIVAR");
+        cambiarEstado(user, "DESACTIVAR");
         const colaborador = await buscarColaboradorByIdOrDocumento(user.colaborador);
+        cambiarEstado(colaborador, "DESACTIVAR");
+        await guardarUser(user);
+        await guardarColaborador(colaborador);
         const rol = await buscarRoleById(user.rol);
         const userDto = userToUserDto(user, colaborador, rol);
         return res.json({

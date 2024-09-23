@@ -25,13 +25,13 @@ const userRolPermitido = (roles = [], accedertMismoUser=false) => {
 
 const noDeletedUserDependRol = (roles=[]) => {
     return async (req, res, next) => {
-        const {colaborador} = req;
+        const {userSession} = req;
         try {
-            const user = await buscarUserByColaborador(colaborador.idColaborador);
-            const rol = await buscarRoleById(user.rol);
-            if(!roles.includes(rol.nombreRol)){   
+            const rol = await buscarRoleById(userSession.rol);
+            console.log(rol);
+            if(roles.includes(rol.nombreRol)){   
                 return res.status(400).json({
-                    msg: 'No puedes eliminar al administrador de la app'
+                    msg: 'No tienes permiso para eliminar a este usuario'
                 })
             };
             next();

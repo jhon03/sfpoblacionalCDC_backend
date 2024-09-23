@@ -75,9 +75,37 @@ const getPagesAvalaible = async(modelo, busqueda={estado:"ACTIVO"}, limit, page)
     }
 }
 
+const cambiarEstado = (modelo, estado = "") => {
+    try {
+        switch (estado) {
+            case "ACTIVAR":
+                modelo.estado = "ACTIVO";
+                break;
+            case "DESACTIVAR":
+                modelo.estado = "INACTIVO";
+                break
+            default:
+                throw new Error("Estado no permitido");
+        }
+    } catch (error) {
+        throw new Error("Error al cambiar el estado: " + error.message);
+    }
+};
+
+const guardarModelo = async (modelo) => {
+    try {
+        const modeloSaved = await modelo.save();
+        return modeloSaved;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 
 
 module.exports = {
+    cambiarEstado,
     generarId,
     getPagesAvalaible,
     obtenerFechaColombia,
