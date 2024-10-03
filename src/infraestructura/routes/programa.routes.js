@@ -18,10 +18,11 @@ const camposPermitidos = [
 const rolesPermitidos = [
     "SUPERUSER",
     "ADMINISTRADOR",
-    "ADMINISTRADOR_PROYECTOS",
+    "PROFESIONAL DE PROYECTOS",
 ]
 
 router.put('/actualizar/:idPrograma', [
+    validarJWT,
     obtenerPrograma(validar=true),
     validateCamposPermitidos(camposPermitidos),
     checkCamposPrograma,
@@ -29,8 +30,8 @@ router.put('/actualizar/:idPrograma', [
 ], actualizarPrograma);
 
 router.post('/:idColaborador/crearPrograma', [
-    //validarJWT,
-    //userRolPermitido(rolesPermitidos),
+     validarJWT,
+    //userRolPermitido(['PROFESIONAL DE PROYECTOS'], true),
     validateCamposPermitidos(camposPermitidos),
     obtenerColaborador(validar = true),
     checkCamposPrograma,
@@ -40,16 +41,22 @@ router.post('/:idColaborador/crearPrograma', [
 
 
 router.get('/desactivar/:idPrograma', [
+    validarJWT,
     obtenerPrograma(validar = true),
 ], desactivarPrograma);
 
 router.get('/activar/:idPrograma', [
+    validarJWT,
     obtenerPrograma(),
 ], activarPrograma);
 
-router.get('/obtenerProgramas', obtenerListaProgramas)
+router.get('/obtenerProgramas', 
+    validarJWT,
+    obtenerListaProgramas)
 
-router.get('/obtenerProgramasConfirmacion', obtenerProgramasEnEspera);
+router.get('/obtenerProgramasConfirmacion', 
+    validarJWT,
+    obtenerProgramasEnEspera);
 
 router.post('/confirmar/:idPrograma/colAsignado/:idColaborador', [
     validarJWT,

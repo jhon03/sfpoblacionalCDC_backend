@@ -5,7 +5,7 @@ const Rol                = require('./rol.models');
 const Server             = require('./server.models');
 const user               = require('./user.models');
 const TipoIdentificacion = require('./tipoIdentificacion.models');
-
+const FormularioPrograma = require('./formularioPrograma.model')
 
 module.exports = {
     Colaborador,
@@ -15,4 +15,5 @@ module.exports = {
     Server,
     user,
     TipoIdentificacion,
+    FormularioPrograma
 }

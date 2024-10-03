@@ -1,0 +1,29 @@
+# Archivos de entorno
+.env
+
+# Node.js
+/node_modules
+
+# Logs de npm y yarn
+npm-debug.log
+yarn-error.log
+
+# Archivos sensibles de configuración
+/src/config/db/mongoDB.db.js
+
+# Carpeta dist de Angular (si estás usando Angular)
+dist/
+
+# Cachés de Angular y npm
+.angular/cache/
+npm-cache/
+
+# Otros logs
+logs/
+*.log
+
+# Sistemas operativos y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

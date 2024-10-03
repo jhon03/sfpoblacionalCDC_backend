@@ -35,7 +35,7 @@ const obtenerListaProgramas = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
     let { page } = req.query; 
-    const limit = 8;
+    const limit = 10;
     const desde = (page-1) * limit;
 
     try {
@@ -68,25 +68,24 @@ const obtenerListaProgramas = async (req, res) => {
 const obtenerProgramasEnEspera = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
-    let { page } = req.query; 
-    const limit = 1;
-    const desde = (page-1) * limit;
+    //let { page } = req.query; 
+    //const limit = 1;
+    //const desde = (page-1) * limit;
 
     try {
-        const paginasDisponibles = await getPagesAvalaible(Programa, {estado:"ACTIVO"}, limit, page);
-
-        const programas = await obtenerProgramaConfirmacion(desde, limit);
+        
+        const programas = await obtenerProgramaConfirmacion();
         const programasDto = await programasToProgramasDtos(programas);
         if(tokenAcessoRenovado){
             return res.json({
-                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                //pagina: `pagina ${page} de ${paginasDisponibles}`,
                 msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
                 programas: programasDto,
                 tokenAcessoRenovado
             })
         }
         return res.json({
-            pagina: `pagina ${page} de ${paginasDisponibles}`,
+            //pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
             programas: programasDto,
         })

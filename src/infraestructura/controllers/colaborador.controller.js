@@ -38,12 +38,12 @@ const registrarColaborador = async (req, res) => {
 
 const listColaboradores = async (req= request, res) =>{
     const {tokenAcessoRenovado} = req;
-    let { page } = req.query; 
-    const limit = 4;
+    const { page } = req.query; 
+    const limit = 10;
     const desde = (page-1) * limit;
 
     try {
-
+         
         const paginasDisponibles = await getPagesAvalaible(Colaborador, {estado:"ACTIVO"}, limit, page);
 
         const listColaboradores = await obtenerColaboradores(desde, limit);
@@ -51,16 +51,14 @@ const listColaboradores = async (req= request, res) =>{
 
         if(tokenAcessoRenovado){
             return res.json({
-                pagina: Number(page),
-                paginasDis: paginasDisponibles,
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
                 msg: `Se encontraron ${listColaboradores.length} colaboradores`,
                 colaboradores: listColaboradoresDto,
                 tokenAcessoRenovado
             })
         }
         return res.json({
-            pagina: Number(page),
-            paginasDis: paginasDisponibles,
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `Se encontraron ${listColaboradores.length} colaboradores`,
             colaboradores: listColaboradoresDto
         })
@@ -112,17 +110,9 @@ const activarColaborador = async(req, res) => {
 
 const buscarColaboradorById = async (req, res) => {
     const { colaborador } = req;
-    const {tokenAcessoRenovado} = req;
     try {
         const tipoIdentificacion = await buscarIdentificacionByIdOrName(colaborador.tipoIdentificacion);
         const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
-        if(tokenAcessoRenovado){
-            return res.json({
-                msg: "Colaborador obtenido correctamnete",
-                colaborador: colaboradorDto,
-                tokenAcessoRenovado
-            })
-        }
         return res.json({
             msg: "Colaborador obtenido correctamnete",
             colaborador: colaboradorDto

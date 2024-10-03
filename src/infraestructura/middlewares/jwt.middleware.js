@@ -1,40 +1,41 @@
 const { request, response } = require("express");
-
 const jwt = require('jsonwebtoken');
 const { obtenerToken, verificarToken, validarExpiracionToken, validarTokenRe, generarJWT } = require("../helpers/jwt.helpers");
 const { validarUsuario } = require("../helpers/auth.helpers");
 
-const validarJWT = async(req= request, res = response, next) => {
+const validarJWT = async(req = request, res = response, next) => {
 
     const token = obtenerToken(req);
-    if(!token){
+    if (!token) {
         return res.status(401).json({
-            msg: 'no hay token en la peticion'
-        })
+            msg: 'No hay token en la petición'
+        });
     }
 
-    try {       
-        const {uuid, rol} = verificarToken(token, process.env.SECRETORPRIVATEKEY);
+    try {
+        // Verificar el token
+        const { uuid, rol } = verificarToken(token, process.env.SECRETORPRIVATEKEY);
         const tokenDecoded = jwt.decode(token);
-        if(validarExpiracionToken(tokenDecoded.exp) ){
+
+        if (validarExpiracionToken(tokenDecoded.exp)) {
             await validarTokenRe(uuid);
             const tokenAcessoRenovado = await generarJWT(uuid, rol);
             req.tokenAcessoRenovado = tokenAcessoRenovado;
         }
-        const usuario = await validarUsuario(uuid);        
+
+        // Obtener y asignar el usuario a la solicitud
+        const usuario = await validarUsuario(uuid);
         req.userSession = usuario;
 
         next();
     } catch (error) {
         res.status(401).json({
-            msg: 'token no valido',
+            msg: 'Token no válido',
             error: error.message
-        })
+        });
     }
-
-
 };
 
 module.exports = {
     validarJWT
-}
+};
