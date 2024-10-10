@@ -24,7 +24,7 @@
     "express-validator": "^7.0.1",
     "express-xss-sanitizer": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.2.0",
+    "mongoose": "^8.7.0",
     "sfpoblacionalcdc_backend": "file:",
     "uuid": "^9.0.1"
   },

@@ -1,11 +1,11 @@
 //const mongoose = require('mongoose');
 
 
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const {v4: uuidv4} = require('uuid');
 
 const FormularioProgramaSchema = new mongoose.Schema({
-    
+
 
 
    idFormulario: {
@@ -14,25 +14,24 @@ const FormularioProgramaSchema = new mongoose.Schema({
    },
 
    programaId: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Programa', 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Programa',
     required: true // Asegura que sea requerido
   },
 
    nombrePrograma: {
-    type: String, 
+    type: String,
     required: true
    },
 
 colaboradorId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'Colaborador',
+  type: String,
   required: true
 },
-   
+
 
 estado: {
-  type: String, 
+  type: String,
   default: "ACTIVO"
 },
     campos: [
@@ -84,8 +83,8 @@ estado: {
   }, {
     toJSON: { getters: true }
   });
-  
+
   const FormularioPrograma = mongoose.model('FormularioPrograma', FormularioProgramaSchema);
-  
+
   module.exports = FormularioPrograma;
 

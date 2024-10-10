@@ -1,6 +1,6 @@
 
 
-const { FormularioPrograma} = require("../../dominio/models");
+const {FormularioPrograma} = require('../../dominio/models');
 const Programa = require('../../dominio/models/programa.models')
 const {v4: uuidv4} = require('uuid');
 const Colaborador = require('../../dominio/models/colaborador.models')
@@ -8,8 +8,8 @@ const Colaborador = require('../../dominio/models/colaborador.models')
 // Controlador para crear un formulario de programa
 const crearFormularioPrograma = async (req, res) => {
 
-  //se modifico el idPrograma por nombrePrograma para pasarlo al crear el formulario. 
-  const { nombrePrograma, campos} = req.body; 
+  //se modifico el idPrograma por nombrePrograma para pasarlo al crear el formulario.
+  const { nombrePrograma, campos} = req.body;
   const { colaboradorId} = req.params;
     try {
 
@@ -21,7 +21,7 @@ if (!colaborador){
   return res.status(404).json({ error: 'Colaborador no enconrado'});
 }
 
-// se busca el programa por nombrePrograma 
+// se busca el programa por nombrePrograma
 const programa = await Programa.findOne({  nombrePrograma})
       if (!programa) {
         return res.status(404).json({ error: ' Programa no encontrado'});
@@ -33,7 +33,7 @@ const formularioExistente = await FormularioPrograma.findOne({programaId: progra
 if( formularioExistente ){
   return res.status(400).json({ error: 'Este programa ya tiene un formulario asociado'})
 }
-  
+
       //crea el formulario con los campos adicionales
       const formulario = new FormularioPrograma
       ({programaId: programa._id, idFormulario: uuidv4(), campos, nombrePrograma: programa.nombrePrograma,
@@ -50,9 +50,9 @@ if( formularioExistente ){
       res.status(500).json({ error: 'Error al crear el formulario', detalles: error.message });
     }
 
-      
+
       //const { programaId, campos } = req.body;
-     
+
   };
 
   const obtenerFormularioPorId = async (req, res) => {
@@ -81,21 +81,39 @@ if( formularioExistente ){
     }
   };
   const diligenciarFormularioPrograma = async (req, res) => {
+
     const { idFormulario } = req.params;
-    const { valores } = req.body;
+    const { colaboradorId} = req.params;
+    const { valores} = req.body;
+// Agregar el log para ver el ID del colaborador recibido
+console.log('Colaborador ID recibido:', colaboradorId);
 
     try {
-        // Se verifica que el formulario exista
+
+   //verificar que exista el colaborador que diligenciara el formulario
+   const colaborador = await Colaborador.findOne({
+    idColaborador: colaboradorId // Asegúrate de que este sea el campo correcto
+});
+
+if (!colaborador){
+  return res.status(404).json({ error: 'Colaborador no enconrado'});
+}
+
+      // Se verifica que el formulario exista
         const formulario = await FormularioPrograma.findOne({ idFormulario });
 
         if (!formulario) {
             return res.status(404).json({ error: 'Formulario no encontrado' });
         }
+// Asegúrate de que 'valores' sea un array
+if (!Array.isArray(valores)) {
+  return res.status(400).json({ error: 'Los valores deben ser un array' });
+}
 
         // Validar que no existan valores duplicados en 'valoresDiligenciados'
         const valoresDuplicados = formulario.valoresDiligenciados.some((conjuntoValores) => {
-          return conjuntoValores.valores.some(campoExistente => 
-              valores.some(campoNuevo => 
+          return conjuntoValores.valores.some(campoExistente =>
+              valores.some(campoNuevo =>
                   campoNuevo.nombreCampo === campoExistente.nombreCampo && campoNuevo.valor === campoExistente.valor
               )
           );
@@ -111,7 +129,7 @@ if( formularioExistente ){
 
         for (let valorCampo of valores) {
             const campoFormulario = camposFormulario.find(campo => campo.nombre === valorCampo.nombreCampo);
-            
+
             if (!campoFormulario) {
                 return res.status(400).json({ error: `Campo ${valorCampo.nombreCampo} no existe en el formulario` });
             }
@@ -130,16 +148,21 @@ if( formularioExistente ){
               valor: valorCampo.valor
           });
         }
+// Asignar el colaboradorId al formulario
+formulario.colaboradorId = colaboradorId;
 
          // Se agrega un nuevo conjunto de valores diligenciados al formulario
          formulario.valoresDiligenciados.push({
           valores: valoresDiligenciados,
           fechaDiligencia: new Date()
       });
+
+
+         //formulario.valores = valoresDiligenciados;
          // Se guarda el formulario con los nuevos valores
          await formulario.save();
          res.status(200).json({ message: 'Formulario diligenciado correctamente', formulario });
- 
+
 
     } catch (error) {
         console.error('Error al diligenciar el formulario:', error);
@@ -147,7 +170,7 @@ if( formularioExistente ){
     }
 };
 
-/*const obtenerFormulariooPorId = async (req, res) => {
+const obtenerFormulariooPorId = async (req, res) => {
   const { idFormulario } = req.params;
 
   try {
@@ -160,7 +183,7 @@ if( formularioExistente ){
       console.error('Error al obtener el formulario:', error);
       res.status(500).json({ error: 'Error al obtener el formulario', detalles: error.message });
   }
-};*/
+};
 
 const obtenerFormulariosPorNombrePrograma = async (req, res) => {
   const { nombrePrograma } = req.params; // Obtiene el nombre del programa de los parámetros de la URL
@@ -197,11 +220,11 @@ const obtenerFormulariosPorNombrePrograma = async (req, res) => {
     return res.status(500).json({ message: 'Error al obtener los formularios.', error });
   }
 };
-    
+
   module.exports = {
     crearFormularioPrograma,
     obtenerFormularioPorId,
     diligenciarFormularioPrograma,
-    obtenerFormulariosPorNombrePrograma
+    obtenerFormulariosPorNombrePrograma,
+    obtenerFormulariooPorId
   }
-    
