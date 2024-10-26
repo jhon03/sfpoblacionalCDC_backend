@@ -6,6 +6,8 @@ const { contrasenaEsValida} = require('../helpers/user.helpers');
 const { crearUser } = require('./user.controllers');
 const { obtenerFechaColombia } = require('../helpers/globales.helpers');
 const { Colaborador } = require('../../dominio/models');
+const {user} = require('../../dominio/models');
+const {Rol} = require('../../dominio/models');
 const { request } = require('express');
 
 
@@ -38,16 +40,14 @@ const registrarColaborador = async (req, res) => {
 
 const listColaboradores = async (req= request, res) =>{
     const {tokenAcessoRenovado} = req;
-    const { page } = req.query; 
+    const { page } = req.query;
     const limit = 10;
     const desde = (page-1) * limit;
 
     try {
-         
+
         const paginasDisponibles = await getPagesAvalaible(Colaborador, {estado:"ACTIVO"}, limit, page);
 
-        const listColaboradores = await obtenerColaboradores(desde, limit);
-        const listColaboradoresDto = await colaboradoresToColaboradoresDto(listColaboradores);
 
         if(tokenAcessoRenovado){
             return res.json({
@@ -70,19 +70,100 @@ const listColaboradores = async (req= request, res) =>{
     }
 };
 
+//nuevo controlador para obtener colaboradores con rol
+const obtenerColaboradoresConRol = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;  // Número de página desde los query params, por defecto 1
+    const pageSize = parseInt(req.query.pageSize) || 10;  // Tamaño de página, por defecto 10
+    const skip = (page - 1) * pageSize;  // Cuántos colaboradores omitir según la página
+
+    try {
+        // Obtener el total de colaboradores (para calcular el total de páginas)
+        const totalColaboradores = await Colaborador.countDocuments();
+
+        // Obtener los colaboradores con paginación
+        const colaboradores = await Colaborador.find()
+            .skip(skip)  // Saltar los colaboradores previos
+            .limit(pageSize)  // Limitar el número de colaboradores a `pageSize`
+            .exec();
+
+        if (!colaboradores || colaboradores.length === 0) {
+            return res.status(404).json({ mensaje: 'No se encontraron colaboradores' });
+        }
+
+        const resultado = [];
+
+        for (const colaborador of colaboradores) {
+            if (!colaborador || !colaborador.idColaborador) {
+                continue;
+            }
+
+            // Depuración: Verificar el modelo User
+            console.log('Modelo User:', user);  // Verifica si User está bien importado
+
+            // Buscar el usuario asociado al colaborador
+            console.log('Buscando usuario con colaborador:', colaborador.idColaborador);
+            const usuario = await user.findOne({ colaborador: colaborador.idColaborador });
+
+            // Depuración: Verificar si se encontró un usuario
+            console.log('Usuario encontrado:', usuario);
+
+            // Manejar si no se encuentra un usuario asociado
+            if (!usuario) {
+                console.error(`No se encontró un usuario para el colaborador con id ${colaborador.idColaborador}`);
+            }
+
+            // Buscar rol por el UUID del usuario
+            const rol = await Rol.findOne({ idRol: usuario?.rol });
+            console.log('Rol encontrado', rol);
+
+            // Sino se encuentra el rol, se asigna 'sin rol'
+            const nombreRol = rol ? rol.nombreRol : 'sin rol';
+
+            // Construir el resultado final
+            resultado.push({
+                idColaborador: colaborador.idColaborador,
+                nombreColaborador: colaborador.nombreColaborador,
+                nombreUsuario: usuario?.nombreUsuario,  // Verificar si el usuario es nulo
+                rol: nombreRol.trim(),  // Comprobar si usuario es nulo
+                estado: colaborador.estado,
+                fechaCreacion: colaborador.fechaCreacion,
+                fechaModificacion: colaborador.fechaModificacion,
+            });
+        }
+
+        // Calcular el total de páginas
+        const totalPaginas = Math.ceil(totalColaboradores / pageSize);
+
+        // Responder con los colaboradores paginados y el total de colaboradores
+        res.status(200).json({
+            total: totalColaboradores,
+            totalPaginas: totalPaginas,
+            colaboradores: resultado
+        });
+
+    } catch (error) {
+        console.error('Error al obtener colaboradores:', error);
+        res.status(500).json({
+            mensaje: 'Error al obtener colaboradores',
+            error: error.message || error  // Devolver el mensaje de error más explícito
+        });
+    }
+};
+
+
 const desactivarColaborador = async (req, res) => {
     const { colaborador } = req
     try {
         cambiarEstadoColaborador(colaborador, "DESACTIVAR");
         const colaboradorEli = await guardarColaborador(colaborador);
         return res.json({
-            msg: `El colaborador ${colaboradorEli.nombreColaborador} ha sido eliminado correctamente`,
-        })
+            msg: `El colaborador ${colaboradorEli.nombreColaborador} se ha inhabilitado correctamente`,
+        });
     } catch (error) {
         return res.status(400).json({
             msg: "Error al desactivar el colaborador",
             error: error.message,
-        })
+        });
     }
 };
 
@@ -136,7 +217,7 @@ const actualizarColaborador = async (req, res) => {
         return res.status(400).json({
             msg: "Colaborador actualizado con exito",
             colaborador: colaboradorDto
-        }) 
+        })
 
     } catch (error) {
         return res.status(400).json({
@@ -154,5 +235,6 @@ module.exports = {
     desactivarColaborador,
     listColaboradores,
     registrarColaborador,
+    obtenerColaboradoresConRol
 
 }

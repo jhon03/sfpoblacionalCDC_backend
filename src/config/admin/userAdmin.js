@@ -6,10 +6,10 @@ const { buscarIdentificacionByIdOrName, crearInstanciaIdentificacion, guardarIde
 const { buscarUserByColaborador } = require("../../infraestructura/helpers/user.helpers");
 
 const infoAdmin = {
-    numeroIdentificacion: 11548752,
-    nombre: "pedro andres",
-    nombreUsuario: "jonatSam@",
-    contrasena: "jonatanSam1@"
+    numeroIdentificacion: 1112469726,
+    nombre: "John Hoyos",
+    nombreUsuario: "johnA@",
+    contrasena: "johnAnderson@"
 }
 
 const crearUserAdmin = async () => {
@@ -24,10 +24,10 @@ const crearUserAdmin = async () => {
                 tipoIdentificacion: tipoIdentificacion.idIdentificacion,
                 numeroIdentificacion: infoAdmin.numeroIdentificacion,
                 nombreColaborador: infoAdmin.nombre,
-                nombreUsuario: infoAdmin.nombreUsuario, 
+                nombreUsuario: infoAdmin.nombreUsuario,
                 contrasena: infoAdmin.contrasena,
             }
-            encryptarContra(datos); 
+            encryptarContra(datos);
             if( await obtenerColaboradorByIdentificacion(datos.numeroIdentificacion) ) {
                 throw new Error("El numero de identificacion que introduciste ya existe");
             };
@@ -38,7 +38,7 @@ const crearUserAdmin = async () => {
         } else {
             console.log(`El usuario administrador ya a sido creado`);
         }
-    } catch (error) {  
+    } catch (error) {
         console.log(error.message);
     }
 };

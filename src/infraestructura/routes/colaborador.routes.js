@@ -1,5 +1,6 @@
 const { Router } = require('express');
-const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById, registrarColaboradorTransactional, actualizarColaborador } = require('../controllers/colaborador.controller');
+const { listColaboradores, registrarColaborador, desactivarColaborador, activarColaborador, buscarColaboradorById, registrarColaboradorTransactional, actualizarColaborador,
+    obtenerColaboradoresConRol } = require('../controllers/colaborador.controller');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposColaborador, checkCamposUser } = require('../helpers/validarCamposCheck.helpers');
 const { validarCampos } = require('../middlewares/validarErrores.middlewares');
@@ -46,11 +47,17 @@ router.get('/findById/:idColaborador', [
     obtenerColaborador(validar = true),
 ], buscarColaboradorById);
 
-// router.delete('/desactivar/:idColaborador', [
-//     validarJWT,
-//     obtenerColaborador(validar= true),
-//     noDeletedUserDependRol(rolesPermitidos),
-// ], desactivarColaborador);
+router.get('/listcolaboradoresconroles', [
+    validarJWT,
+    userRolPermitido(rolesPermitidos),
+],
+obtenerColaboradoresConRol);
+
+router.delete('/desactivar/:idColaborador', [
+ validarJWT,
+obtenerColaborador(validar= true),
+//noDeletedUserDependRol(rolesPermitidos),
+ ], desactivarColaborador);
 
 // router.get('/activar/:idColaborador', [
 //     validarJWT,
