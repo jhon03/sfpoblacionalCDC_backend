@@ -9,8 +9,9 @@ const { Colaborador } = require('../../dominio/models');
 const {user} = require('../../dominio/models');
 const {Rol} = require('../../dominio/models');
 const { request } = require('express');
-
-
+const { obtenerUsuarioById, guardarUsuario} = require('../helpers/user.helpers')
+const Usuarios = require('../../dominio/models/user.models');
+const ColaboradorDto = require('../../aplicacion/dtos/colaborador.dto');
 
 
 const registrarColaborador = async (req, res) => {
@@ -207,17 +208,52 @@ const buscarColaboradorById = async (req, res) => {
 };
 
 const actualizarColaborador = async (req, res) => {
-    let { colaborador, body:datos } = req;
+    const { idColaborador}= req.params;
+    const {nombreColaborador, nombreUsuario}=req.body;
+
+
     try {
-        updateColaborador(colaborador, datos);
+
+
+        const colaborador = await Colaborador.findOne({ idColaborador});
+
+
+        if (!colaborador) {
+            return res.status(404).json({ msg: "Colaborador no encontrado" });
+        }
+        if (nombreColaborador) {
+            colaborador.nombreColaborador = nombreColaborador.toUpperCase();
+        }
+
+
         colaborador.fechaModificacion = obtenerFechaColombia();
+
+        await colaborador.save();
+
+
+        //verificar y actualizar el usuario en la colección users
+
+        let usuario = null;
+        if(nombreUsuario){
+          const usuario = await Usuarios.findOne({ colaborador: idColaborador }); // Buscar usuario por `colaboradorId`
+
+        if (usuario) {
+            usuario.nombreUsuario = nombreUsuario;
+            await usuario.save();
+        } else {
+            throw new Error("Usuario no encontrado para este colaborador");
+        }
+        }
+
+        //crea un dto para la respuesta
         const tipoIdentificacion = await buscarIdentificacionByIdOrName(colaborador.tipoIdentificacion);
-        await guardarColaborador(colaborador);
-        const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
-        return res.status(400).json({
+        const rol = usuario ? usuario.rol : colaborador.rol;
+        const colaboradorDto = new ColaboradorDto(colaborador, tipoIdentificacion, rol);
+
+        return res.status(200).json({
             msg: "Colaborador actualizado con exito",
             colaborador: colaboradorDto
-        })
+        });
 
     } catch (error) {
         return res.status(400).json({

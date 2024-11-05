@@ -67,11 +67,11 @@ obtenerColaborador(validar= true),
 
 
 
-// router.put('/actualizar/:idColaborador', [
-//     validarJWT,
-//     userRolPermitido(rolesPermitidos),
-//     validateCamposPermitidos(camposPermitidosColaborador),
-//     obtenerColaborador(validar=true)
-// ], actualizarColaborador);
+router.put('/actualizar/:idColaborador', [
+validarJWT,
+//userRolPermitido(rolesPermitidos)
+validateCamposPermitidos(camposPermitidosColaborador),
+obtenerColaborador(validar=true)
+], actualizarColaborador);
 
 module.exports = router;

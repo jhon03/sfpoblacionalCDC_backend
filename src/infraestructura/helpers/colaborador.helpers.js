@@ -28,7 +28,7 @@ const guardarColaborador = async (colaborador) => {
 
 const obtenerColaboradores = async(desde=0, limite=5) => {
     try {
-        const listaColaboradores = 
+        const listaColaboradores =
             await Colaborador.find({estado:"ACTIVO"})
                 .skip(desde)
                 .limit(limite);
@@ -69,7 +69,7 @@ const cambiarEstadoColaborador = (colaborador, estado = "") => {
 
 const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentificacion = "" ) => {
     try {
-    
+
         const colaborador = await Colaborador.findOne({
             $or: [
                 {idColaborador},
@@ -84,19 +84,27 @@ const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentifi
 
 //pendiente
 const updateColaborador = (colaborador, datos = {}) => {
-    let {nombreColaborador} = datos;
+    let {nombreColaborador,  tipoIdentificacion, numeroIdentificacion, estado} = datos;
+
     try {
-        nombreColaborador = nombreColaborador.toUpperCase();
-        if(nombreColaborador === ''){
-            throw new Error('El nombre de colaborador no puede estar en blanco');
+
+        if (datos.nombreColaborador){
+            const nombreColaborador = datos.nombreColaborador.toUpperCase();
+            if( nombreColaborador === colaborador.nombreColaborador){
+                throw new Error("El nombre que deseas colocar ya lo tienes");
+            }
+            colaborador.nombreColaborador = nombreColaborador;
         }
-        if( nombreColaborador === colaborador.nombreColaborador){
-            throw new Error("El nombre que deseas colocar ya lo tienes");
-        };
-        colaborador.nombreColaborador = nombreColaborador;
-        
+        if (tipoIdentificacion) {
+            colaborador.tipoIdentificacion = tipoIdentificacion;
+        }
+
+            colaborador.fechaModificacion = obtenerFechaColombia();
+       //nombreColaborador = nombreColaborador.toUpperCase();
+
+
     } catch (error) {
-        throw new Error(error.message);   
+        throw new Error(error.message);
     }
 }
 
