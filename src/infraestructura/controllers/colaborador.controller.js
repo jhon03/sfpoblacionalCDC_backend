@@ -47,30 +47,37 @@ const listColaboradores = async (req= request, res) =>{
 
     try {
 
-        const paginasDisponibles = await getPagesAvalaible(Colaborador, {estado:"ACTIVO"}, limit, page);
+          // Obtener la lista de colaboradores desde la base de datos
+          const colaboradores = await Colaborador.find({ estado: "ACTIVO" })
+          .skip(desde)
+          .limit(limit);
 
+// Convertir colaboradores a DTOs
+const colaboradoresDto = await colaboradoresToColaboradoresDto(colaboradores);
 
-        if(tokenAcessoRenovado){
-            return res.json({
-                pagina: `pagina ${page} de ${paginasDisponibles}`,
-                msg: `Se encontraron ${listColaboradores.length} colaboradores`,
-                colaboradores: listColaboradoresDto,
-                tokenAcessoRenovado
-            })
-        }
-        return res.json({
-            pagina: `pagina ${page} de ${paginasDisponibles}`,
-            msg: `Se encontraron ${listColaboradores.length} colaboradores`,
-            colaboradores: listColaboradoresDto
-        })
-    } catch (error) {
-        return res.status(400).json({
-            msg: 'Error al obtener la lista de colaboradores',
-            error: error.message
-        })
-    }
+ // Obtener el número total de páginas disponibles
+ const totalColaboradores = await Colaborador.countDocuments({ estado: "ACTIVO" });
+ const paginasDisponibles = Math.ceil(totalColaboradores / limit);
+
+ const respuesta = {
+    pagina: `Página ${page} de ${paginasDisponibles}`,
+    total: totalColaboradores,
+    totalPaginas: paginasDisponibles,
+    colaboradores: colaboradoresDto,
 };
 
+if (tokenAcessoRenovado) {
+    respuesta.tokenAcessoRenovado = tokenAcessoRenovado;
+}
+
+return res.json(respuesta);
+} catch (error) {
+return res.status(400).json({
+    msg: 'Error al obtener la lista de colaboradores',
+    error: error.message,
+});
+}
+};
 //nuevo controlador para obtener colaboradores con rol
 const obtenerColaboradoresConRol = async (req, res) => {
     const page = parseInt(req.query.page) || 1;  // Número de página desde los query params, por defecto 1

@@ -13,19 +13,28 @@ const crearPrograma = async (req, res) => {
         informacion = convertirClavesAMayusculas(informacion);
         //validarFormato(formato);
         const buscarPrograma = await buscarProgramaByName(nombrePrograma);
-        if( buscarPrograma ) throw new Error("Ya existe un programa con el nombre: " + nombrePrograma)
+
+        if( buscarPrograma ){
+             throw new Error("Ya existe un programa con el nombre: " + nombrePrograma);
+        }
+
         const programa = crearInstanciaPrograma({nombrePrograma, informacion}, colaborador);
         await guardarPrograma(programa);
+
         const programaDto = programaToProgramaDto(programa, colaborador);
         return res.status(201).json({
             msg: "Programa creado correctamente",
             programa: programaDto,
-        })
+        });
+
     } catch (error) {
+
+        let errorMessage = error.message;
+
         return res.status(400).json({
             msg: "Error al crear el programa",
             error: error.message
-        })
+        });
     }
 };
 
@@ -34,7 +43,7 @@ const crearPrograma = async (req, res) => {
 const obtenerListaProgramas = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
-    let { page } = req.query; 
+    let { page } = req.query;
     const limit = 10;
     const desde = (page-1) * limit;
 
@@ -68,14 +77,18 @@ const obtenerListaProgramas = async (req, res) => {
 const obtenerProgramasEnEspera = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
-    //let { page } = req.query; 
+    //let { page } = req.query;
     //const limit = 1;
     //const desde = (page-1) * limit;
 
     try {
-        
+
         const programas = await obtenerProgramaConfirmacion();
+        console.log("Programas obtenidos después de la validación:", programas);  // Verificar los programas después de obtener
+
         const programasDto = await programasToProgramasDtos(programas);
+        console.log("Programas mapeados:", programasDto);
+
         if(tokenAcessoRenovado){
             return res.json({
                 //pagina: `pagina ${page} de ${paginasDisponibles}`,

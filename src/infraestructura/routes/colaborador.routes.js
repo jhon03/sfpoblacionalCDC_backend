@@ -12,8 +12,13 @@ const router = new Router;
 
 const rolesPermitidos = [
     "SUPERUSER",
-    "ADMINISTRADOR"
+    "ADMINISTRADOR",
+    " PROFESIONAL DE PROYECTOS",
+    "DIRECTORA "
 ]
+
+const soloAdministrador = userRolPermitido(['SUPERUSER']);
+
 
 const camposPermitidosColaborador = [
     'tipoIdentificacion',
@@ -26,12 +31,13 @@ const camposPermitidosColaborador = [
 
 router.get('/listColaboradores', [
     validarJWT,
-    userRolPermitido(rolesPermitidos),
+    userRolPermitido(['SUPERUSER',' PROFESIONAL DE PROYECTOS']),
 ], listColaboradores);
 
 router.post('/crear', [
     validarJWT,
     userRolPermitido(rolesPermitidos),
+    soloAdministrador,
     validateCamposPermitidos(camposPermitidosColaborador),
     checkCamposColaborador,
     checkCamposUser,
@@ -49,13 +55,16 @@ router.get('/findById/:idColaborador', [
 
 router.get('/listcolaboradoresconroles', [
     validarJWT,
-    userRolPermitido(rolesPermitidos),
+    userRolPermitido(['SUPERUSER','DIRECTORA ']),
+
 ],
 obtenerColaboradoresConRol);
 
 router.delete('/desactivar/:idColaborador', [
  validarJWT,
 obtenerColaborador(validar= true),
+userRolPermitido(rolesPermitidos),
+soloAdministrador
 //noDeletedUserDependRol(rolesPermitidos),
  ], desactivarColaborador);
 
@@ -69,9 +78,11 @@ obtenerColaborador(validar= true),
 
 router.put('/actualizar/:idColaborador', [
 validarJWT,
-//userRolPermitido(rolesPermitidos)
+userRolPermitido(rolesPermitidos),
+soloAdministrador,
 validateCamposPermitidos(camposPermitidosColaborador),
 obtenerColaborador(validar=true)
 ], actualizarColaborador);
+
 
 module.exports = router;

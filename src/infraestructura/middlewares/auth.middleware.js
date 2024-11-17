@@ -1,31 +1,29 @@
 const { buscarRoleById } = require("../helpers/rol.helpers");
 const { buscarUserByColaborador } = require("../helpers/user.helpers");
 
+//verificacion de roles permitidos
 const userRolPermitido = (roles = [], accederMiUser = false) => {
     return async (req, res, next) => {
         const { userSession } = req;
-        const { colaborador } = req.body || {};
+
 
         try {
-
+            //obtener el rol del usuario logueado
             const rol = await buscarRoleById(userSession.rol);
-            
+            console.log('Rol del usuario logueado:', rol.nombreRol);
+            console.log('Roles permitidos:', roles);
 
+         //verificar si el rol del usuario logueado esta dentro de los roles permitidos
             if (!roles.includes(rol.nombreRol)) {
                 return res.status(403).json({
                     msg: 'No tienes permiso para realizar esta acción'
                 });
-            }
 
-            if (!accederMiUser && colaborador && colaborador !== userSession.colaborador) {
-                return res.status(403).json({
-                    msg: 'No puedes realizar esta acción para otro colaborador'
-                });
             }
-
+        //si el rol es válido, permitir el acceso
             next();
         } catch (error) {
-            return res.status(500).json({
+            return res.status(400).json({
                 msg: 'Error al verificar rol',
                 error: error.message
             });

@@ -3,8 +3,8 @@ class ProgramaDto {
 
     constructor(programa, colaboradorCreador, colaboradorAsignado){
         this.id                           = programa.idPrograma;
-        this.IdColaborador                = colaboradorCreador.idColaborador;
-        this.colaborador                  = colaboradorCreador.nombreColaborador;
+        this.IdColaborador                = colaboradorCreador.idColaborador || "";
+        this.colaborador                  = colaboradorCreador.nombreColaborador || "No asignado";
         this.estado                       = programa.estado;
         this.nombrePrograma               = programa.nombrePrograma;
         this.informacion                  = programa.informacion;

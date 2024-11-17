@@ -19,7 +19,8 @@ const programaSchema = Schema({
 
     nombrePrograma: {
         type: String,
-        required: [true, "El nombre del formato que deseas crear es requerido"],
+        required: [true, "El nombre del programa que deseas crear es requerido"],
+        unique: true,
     },
 
     informacion: {
