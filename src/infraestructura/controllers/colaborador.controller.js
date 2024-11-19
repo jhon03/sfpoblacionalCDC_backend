@@ -12,20 +12,28 @@ const { request } = require('express');
 const { obtenerUsuarioById, guardarUsuario} = require('../helpers/user.helpers')
 const Usuarios = require('../../dominio/models/user.models');
 const ColaboradorDto = require('../../aplicacion/dtos/colaborador.dto');
-
+const { buscarColaboradorByIdOrDocumento} = require('../helpers/colaborador.helpers');
 
 const registrarColaborador = async (req, res) => {
     let { tipoIdentificacion, body:datos, rol } = req
     try {
         contrasenaEsValida(datos.contrasena);
         encryptarContra(datos)
+
+        // Validar existencia del número de identificación
         if( await obtenerColaboradorByIdentificacion(datos.numeroIdentificacion) ) {
             throw new Error("El numero de identificacion que introduciste ya existe");
-        };
+        }
+        //validar la existencia del email único
+        const emailExiste = await Colaborador.findOne({ email: datos.email});
+        if( emailExiste) throw new Error("El correo electrónico ya está registrado");
+
         let colaborador = crearInstanciaColaborador(datos);
         await guardarColaborador(colaborador);
+
         let userDto = await crearUser(colaborador, datos, rol);
         const colaboradorDto = colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
+
         return res.status(201).json({
             msg: 'EL colaborador a sido creado correctamente',
             colaborador: colaboradorDto,
@@ -269,7 +277,22 @@ const actualizarColaborador = async (req, res) => {
         })
     }
 };
+// Controlador para buscar colaborador
+const buscarColaborador = async (req, res) => {
+    const { idColaborador, numeroIdentificacion } = req.query;
 
+    try {
+        const colaborador = await buscarColaboradorByIdOrDocumento(idColaborador, numeroIdentificacion);
+
+        if (!colaborador) {
+            return res.status(404).json({ message: 'Colaborador no encontrado' });
+        }
+
+        res.status(200).json(colaborador);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al buscar colaborador', error: error.message });
+    }
+};
 
 module.exports = {
     activarColaborador,
@@ -278,6 +301,7 @@ module.exports = {
     desactivarColaborador,
     listColaboradores,
     registrarColaborador,
-    obtenerColaboradoresConRol
+    obtenerColaboradoresConRol,
+    buscarColaborador
 
 }

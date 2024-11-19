@@ -9,6 +9,10 @@ exports.checkCamposColaborador = [
     check('numeroIdentificacion','El numero de identificacion debe ser numerica').isNumeric(),
     check('nombreColaborador', 'El nombre del colaborador es requerido').not().isEmpty(),
     check('nombreColaborador', 'El nombre del colaborador debe ser un string').isString(),
+    // Validaciones para el campo email
+    check('email', 'El correo electrónico es requerido').not().isEmpty(),
+    check('email', 'El correo electrónico debe ser un string').isString(),
+    check('email', 'El formato del correo electrónico no es válido').isEmail(),
 ];
 
 exports.checkCamposTipoIdentificacion = [
@@ -26,7 +30,7 @@ exports.checkCamposPrograma = [
 ]
 
 exports.checkCamposFormatoPrograma = [
-    
+
 ]
 
 exports.checkCamposRol = [

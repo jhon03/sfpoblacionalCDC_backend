@@ -6,6 +6,9 @@ const { obtenerPaginasDisponibles, getPagesAvalaible } = require("../helpers/glo
 const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
 const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma, obtenerProgramaConfirmacion } = require("../helpers/programa.helpers");
 
+//importancia del servicio de correo
+const { enviarCorreo} = require('../helpers/email.helpers');
+
 const crearPrograma = async (req, res) => {
     let {colaborador } = req;
     let {informacion, nombrePrograma} = req.body
@@ -39,7 +42,7 @@ const crearPrograma = async (req, res) => {
 };
 
 
-
+//Obtener lista de programas activos para los lideres de proyectos.
 const obtenerListaProgramas = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
@@ -74,6 +77,7 @@ const obtenerListaProgramas = async (req, res) => {
     }
 };
 
+//obtener lista de programas en estado: "EN PROCESO DE CONFIRMACION" para los roles de directora
 const obtenerProgramasEnEspera = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
@@ -155,14 +159,32 @@ const desactivarPrograma= async(req, res) => {
     }
 }
 
+/*activar programas mediante la asignación de colaboradores. Evaluación y Activación de Programas en el CDC -super historia*/
 const activarPrograma = async (req, res) => {
     let {programa} = req;
     try {
         if(programa.estado === "ACTIVO") throw new Error('El programa ya se encuentra activo');
         await updatePrograma(programa, {estado: "ACTIVAR"});
+
         const programaActivado = await guardarPrograma(programa);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaborador);
         const colaboradorAsignado = await buscarColaboradorByIdOrDocumento(programa.colaboradorResponsable);
+
+        if (!colaboradorAsignado.email) {
+            throw new Error('El colaborador asignado no tiene un correo electrónico registrado');
+        }
+
+        //enviar notificaciones por correo
+        await enviarCorreo({
+            to: colaboradorAsignado.email,
+
+            subject: `Asignación de programa: ${programa.nombrePrograma}`,
+            text: `Hola ${colaboradorAsignado.nombreColaborador}, se te ha asignado como responsable del programa "${programa.nombrePrograma}".`,
+            html: `<p>Hola <strong>${colaboradorAsignado.nombreColaborador}</strong>,</p>
+                   <p>Se te ha asignado como responsable del programa <strong>"${programa.nombrePrograma}"</strong>.</p>`,
+
+        });
+
         const programaDto = programaToProgramaDto(programaActivado, colaborador, colaboradorAsignado);
         return res.json({
             msg: "Programa activado correctamente",
@@ -175,18 +197,31 @@ const activarPrograma = async (req, res) => {
         })
     }
 };
-
+/*confirmar programas mediante la asignación de colaboradores. Evaluación y Activación de Programas en el CDC -super historia*/
 const confirmaPrograma = async (req, res) => {
     let {programa, colaborador: colaboradorAsignado, body:datos} = req;
     try {
         validarFormato(datos);
-        if(programa.estado === "ACTIVO") throw new Error("El programa ya asido validado y confirmado");
+        if(programa.estado === "ACTIVO") throw new Error("El programa ya ha sido validado y confirmado");
+
         await updatePrograma(programa, {estado: "CONFIRMAR"});
         programa.colaboradorResponsable = colaboradorAsignado.idColaborador;
         programa.formato = datos;
 
         const programaActivado = await guardarPrograma(programa);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
+
+        //enviar notificación por correo
+        await enviarCorreo({
+            to: colaboradorAsignado.email,
+            subject: `Confirmación de responsabilidad en el programa: ${programa.nombrePrograma}`,
+            text: `Hola ${colaboradorAsignado.nombreColaborador}, ahora eres el responsable del programa "${programa.nombrePrograma}".`,
+            html: `<p>Hola <strong>${colaboradorAsignado.nombreColaborador}</strong>,</p>
+                   <p>Ahora eres el responsable del programa <strong>"${programa.nombrePrograma}"</strong>.</p>`,
+
+        });
+
+
         const programaDto = programaToProgramaDto(programaActivado, colaborador, colaboradorAsignado);
         return res.json({
             msg: "Programa confirmado correctamente, se asigno correctamnete el colaborador responsable y se asigno el formato",
@@ -197,6 +232,29 @@ const confirmaPrograma = async (req, res) => {
             msg: "Error al confirmar el programa",
             error: error.message,
         })
+    }
+};
+
+// Controlador para enviar un correo
+const enviarCorreoController = async (req, res) => {
+    const { to, subject, text, html } = req.body;
+
+    // Validar que los parámetros necesarios estén presentes
+    if (!to || !subject || (!text && !html)) {
+        return res.status(400).json({
+            message: 'Faltan parámetros obligatorios: to, subject, y al menos text o html',
+        });
+    }
+
+    try {
+        // Llamar al helper para enviar el correo
+        await enviarCorreo({ to, subject, text, html });
+        res.status(200).json({ message: 'Correo enviado exitosamente' });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al enviar el correo',
+            error: error.message,
+        });
     }
 };
 
@@ -231,5 +289,6 @@ module.exports = {
     confirmaPrograma,
     desactivarPrograma,
     obtenerListaProgramas,
-    obtenerProgramasEnEspera
+    obtenerProgramasEnEspera,
+    enviarCorreoController
 }

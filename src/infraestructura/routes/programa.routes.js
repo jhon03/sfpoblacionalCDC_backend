@@ -8,6 +8,8 @@ const { validarCampos } = require('../middlewares/validarErrores.middlewares');
 const { obtenerProgramaConfirmacion } = require('../helpers/programa.helpers');
 const { validarJWT } = require('../middlewares/jwt.middleware');
 const { userRolPermitido } = require('../middlewares/auth.middleware');
+const { enviarCorreoController} = require ('../controllers/programa.controllers');
+
 const router = new Router();
 
 const camposPermitidos = [
@@ -68,6 +70,11 @@ router.post('/confirmar/:idPrograma/colAsignado/:idColaborador', [
     obtenerPrograma(validar=true),
     obtenerColaborador(validar=true),
 ], confirmaPrograma);
+
+
+// Ruta para enviar correos
+router.post('/enviar',
+     enviarCorreoController);
 
 //endpoint antiguo inactivo
 // router.post('/crearFormato/:idPrograma', [

@@ -7,7 +7,8 @@ const { validarCampos } = require('../middlewares/validarErrores.middlewares');
 const { obtenerTipoIdentificacion, obtenerColaborador, obtenerUsuarioByUserName, obtenerRol } = require('../middlewares/obtenerModelos.middleware');
 const { noDeletedUserDependRol, userRolPermitido } = require('../middlewares/auth.middleware');
 const { validarJWT } = require('../middlewares/jwt.middleware');
-
+const {buscarColaboradorByOrDocumento} = require('../helpers/colaborador.helpers');
+const { buscarColaborador } = require('../controllers/colaborador.controller');
 const router = new Router;
 
 const rolesPermitidos = [
@@ -26,7 +27,8 @@ const camposPermitidosColaborador = [
     'nombreColaborador',
     'nombreUsuario',
     'contrasena',
-    'rol'
+    'rol',
+    'email'
 ]
 
 router.get('/listColaboradores', [
@@ -84,5 +86,7 @@ validateCamposPermitidos(camposPermitidosColaborador),
 obtenerColaborador(validar=true)
 ], actualizarColaborador);
 
+// Ruta para buscar colaborador por ID o número de identificación
+router.get('/buscar', buscarColaborador);
 
 module.exports = router;

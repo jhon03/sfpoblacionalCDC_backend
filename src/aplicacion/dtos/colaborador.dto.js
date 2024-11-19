@@ -10,6 +10,7 @@ class ColaboradorDto {
         this.fechaModificacion = datos.fechaModificacion || 'Sin modificaciones';
         this.estado = datos.estado || 'Sin estado';
         this.rol = rol.nombreRol || 'Sin rol';
+        this.email = datos.email || '';
     }
 }
 

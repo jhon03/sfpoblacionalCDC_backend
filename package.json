@@ -25,6 +25,7 @@
     "express-xss-sanitizer": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.0",
+    "nodemailer": "^6.9.16",
     "sfpoblacionalcdc_backend": "file:",
     "uuid": "^9.0.1"
   },

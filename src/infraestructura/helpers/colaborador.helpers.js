@@ -2,13 +2,14 @@ const Colaborador = require('../../dominio/models/colaborador.models');
 const { generarId, obtenerFechaColombia } = require('./globales.helpers');
 
 const crearInstanciaColaborador = (datos) => {
-    const {tipoIdentificacion, numeroIdentificacion, nombreColaborador} = datos;
+    const {tipoIdentificacion, numeroIdentificacion, nombreColaborador, email} = datos;
     try {
         const colaborador = new Colaborador({
             idColaborador: generarId(),
             tipoIdentificacion,
             numeroIdentificacion,
             nombreColaborador: nombreColaborador.toUpperCase(),
+            email,
             fechaCreacion: obtenerFechaColombia(),
         });
         return colaborador;
@@ -67,6 +68,7 @@ const cambiarEstadoColaborador = (colaborador, estado = "") => {
     }
 };
 
+
 const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentificacion = "" ) => {
     try {
 
@@ -81,6 +83,7 @@ const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentifi
         throw new Error("Error al buscar el colaborador");
     }
 };
+
 
 //pendiente
 const updateColaborador = (colaborador, datos = {}) => {
