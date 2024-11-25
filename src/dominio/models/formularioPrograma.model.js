@@ -14,9 +14,9 @@ const FormularioProgramaSchema = new mongoose.Schema({
    },
 
    programaId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Programa',
-    required: true // Asegura que sea requerido
+    //required: true // Asegura que sea requerido
   },
 
    nombrePrograma: {

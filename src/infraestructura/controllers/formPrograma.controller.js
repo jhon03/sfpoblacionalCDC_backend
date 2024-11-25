@@ -1,10 +1,10 @@
 
-
+const { response, request } = require('express');
 const {FormularioPrograma} = require('../../dominio/models');
 const Programa = require('../../dominio/models/programa.models')
 const {v4: uuidv4} = require('uuid');
 const Colaborador = require('../../dominio/models/colaborador.models')
-
+const { enviarCorreo } = require('../helpers/email.helpers');
 // Controlador para crear un formulario de programa
 const crearFormularioPrograma = async (req, res) => {
 
@@ -21,28 +21,49 @@ if (!colaborador){
   return res.status(404).json({ error: 'Colaborador no enconrado'});
 }
 
-// se busca el programa por nombrePrograma
-const programa = await Programa.findOne({  nombrePrograma})
+// se busca el programa "ACTIVO" por nombrePrograma
+const programa = await Programa.findOne({  nombrePrograma, estado: 'ACTIVO'});
       if (!programa) {
         return res.status(404).json({ error: ' Programa no encontrado'});
 
       }
 //VERIFICA si ya existe un formulario para este programa
-const formularioExistente = await FormularioPrograma.findOne({programaId: programa._id});
+const formularioExistente = await FormularioPrograma.findOne({programaId: programa.idPrograma});
 
 if( formularioExistente ){
   return res.status(400).json({ error: 'Este programa ya tiene un formulario asociado'})
 }
 
+//Buscar al colaborador responsable del programa
+const colaboradorResponsable = await Colaborador.findOne({ idColaborador: programa.colaboradorResponsable});
+if (!colaboradorResponsable){
+  return rest.status(404).json({error: 'No se encontro colaborador Responsable'});
+}
       //crea el formulario con los campos adicionales
       const formulario = new FormularioPrograma
-      ({programaId: programa._id, idFormulario: uuidv4(), campos, nombrePrograma: programa.nombrePrograma,
+      ({programaId: programa.idPrograma,
+        idFormulario: uuidv4(),
+         campos, nombrePrograma: programa.nombrePrograma,
         estado: 'ACTIVO',
-       colaboradorId: colaborador._id
+      colaboradorId: colaborador._id
+      //colaboradorId: colaboradorCreador._id,
       });
 
       await formulario.save();
+//Enviar notificación por correo al colaborador responsable
+if (colaboradorResponsable.email) {
+  await enviarCorreo({
+    to: colaboradorResponsable.email,
+    subject: `Nuevo formulario asignado al programa: ${programa.nombrePrograma}`,
+        text: `Hola ${colaboradorResponsable.nombreColaborador}, se ha asignado un formulario al programa "${programa.nombrePrograma}" para recopilar datos de los participantes que se inscribirán.`,
+        html: `<p>Hola <strong>${colaboradorResponsable.nombreColaborador}</strong>,</p>
+               <p>Se ha asignado un formulario al programa <strong>"${programa.nombrePrograma}"</strong> para recopilar datos de los participantes que se inscribirán.</p>`,
 
+  });
+}else {
+  console.warn(`El colaborador responsable (${colaboradorResponsable.nombreColaborador}) no tiene un correo electrónico registrado.`);
+
+}
 
       res.status(201).json({ message: 'formulario creado exitosamente', formulario});
     } catch (error) {
@@ -50,8 +71,6 @@ if( formularioExistente ){
       res.status(500).json({ error: 'Error al crear el formulario', detalles: error.message });
     }
 
-
-      //const { programaId, campos } = req.body;
 
   };
 
@@ -170,6 +189,81 @@ formulario.colaboradorId = colaboradorId;
     }
 };
 
+// Diligenciar formulario, obteniéndolo por nombre de programa
+const diligenciarFormulario = async (req, res) => {
+  const { nombrePrograma } = req.query; // Obtener el nombrePrograma desde los parámetros de consulta
+  const { valores } = req.body; // Capturar los valores diligenciados desde el cuerpo de la solicitud
+
+  try {
+    if (!nombrePrograma) {
+      return res.status(400).json({
+        msg: 'El nombre del programa es requerido como parámetro de consulta.',
+      });
+    }
+
+    //Buscar el programa por nombre
+    const programa = await Programa.findOne({ nombrePrograma });
+    if (!programa) {
+      return res.status(404).json({
+        msg: `No se encontró ningún programa con el nombre: ${nombrePrograma}`,
+      });
+    }
+
+//verificar que el usuario logueado sea el colaborador responsable del programa
+const usuario = req.userSession;
+if(programa.colaboradorResponsable.trim() !== usuario.colaborador.trim()){
+  return res.status(403).json({
+    msg: "No tienes permisos para diligenciar el formulario",
+  });
+}
+
+    // Buscar el formulario asociado al programa
+    const formulario = await FormularioPrograma.findOne({ nombrePrograma });
+
+    if (!formulario) {
+      return res.status(404).json({
+        msg: `No se encontró ningún formulario asociado al programa: ${nombrePrograma}`,
+      });
+    }
+
+    // Validar que los valores enviados correspondan a los campos del formulario
+    const camposValidos = formulario.campos.map((campo) => campo.nombre);
+    const valoresInvalidos = valores.filter(
+      (valor) => !camposValidos.includes(valor.nombreCampo)
+    );
+
+    if (valoresInvalidos.length > 0) {
+      return res.status(400).json({
+        msg: 'Algunos campos enviados no son válidos para este formulario.',
+        valoresInvalidos,
+      });
+    }
+
+    // Agregar los valores diligenciados al formulario
+    formulario.valoresDiligenciados.push({
+      fechaDiligencia: new Date(),
+      valores,
+      //colaboradorId: usuario.colaborador,
+      //colaboradorNombre: usuario.nombreUsuario,
+    });
+
+    // Guardar el formulario actualizado
+    await formulario.save();
+
+    res.json({
+      msg: 'Formulario diligenciado correctamente.',
+      formulario,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      msg: 'Error al diligenciar el formulario.',
+      error: error.message,
+    });
+  }
+};
+
+//se obtiene un formulario por id de formulario
 const obtenerFormulariooPorId = async (req, res) => {
   const { idFormulario } = req.params;
 
@@ -185,46 +279,48 @@ const obtenerFormulariooPorId = async (req, res) => {
   }
 };
 
-const obtenerFormulariosPorNombrePrograma = async (req, res) => {
-  const { nombrePrograma } = req.params; // Obtiene el nombre del programa de los parámetros de la URL
+const buscarFormulariosPorNombrePrograma = async (req, res) => {
 
   try {
-    // Busca los formularios por nombre de programa
-    const formularios = await Formulario.find({ nombrePrograma });
+    const { nombrePrograma } = req.query; // Tomamos el nombre del programa desde los query params
 
-    if (!formularios || formularios.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron formularios para el programa especificado.' });
+    if (!nombrePrograma) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'El nombre del programa es requerido como parámetro de búsqueda',
+      });
     }
 
-    // Formatear la respuesta incluyendo los campos y los valores diligenciados
-    const respuesta = formularios.map(formulario => ({
-      idFormulario: formulario.idFormulario,
-      programaId: formulario.programaId,
-      nombrePrograma: formulario.nombrePrograma,
-      colaboradorId: formulario.colaboradorId,
-      estado: formulario.estado,
-      campos: formulario.campos.map(campo => ({
-        nombre: campo.nombre,
-        tipo: campo.tipo
-      })),
-      valoresDiligenciados: formulario.valoresDiligenciados.map(valor => ({
-        nombreCampo: valor.valores[0]?.nombreCampo,
-        valor: valor.valores[0]?.valor,
-        fechaDiligencia: valor.fechaDiligencia
-      })),
-      fechaCreacion: formulario.fechaCreacion
-    }));
+    // Buscar el formulario por nombrePrograma
+    const formulario = await FormularioPrograma.findOne({ nombrePrograma });
 
-    return res.status(200).json(respuesta);
+    if (!formulario) {
+      return res.status(404).json({
+        ok: false,
+        msg: `No se encontró un formulario asociado al programa: ${nombrePrograma}`,
+      });
+    }
+
+    // Devolver el formulario encontrado
+    res.json({
+      ok: true,
+      formulario,
+    });
   } catch (error) {
-    return res.status(500).json({ message: 'Error al obtener los formularios.', error });
+    console.error('Error al buscar formulario:', error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Error interno del servidor',
+    });
   }
 };
+
 
   module.exports = {
     crearFormularioPrograma,
     obtenerFormularioPorId,
     diligenciarFormularioPrograma,
-    obtenerFormulariosPorNombrePrograma,
-    obtenerFormulariooPorId
+    buscarFormulariosPorNombrePrograma,
+    obtenerFormulariooPorId,
+    diligenciarFormulario
   }
