@@ -10,13 +10,15 @@ const FormularioProgramaSchema = new mongoose.Schema({
 
    idFormulario: {
     type: String,
-    default: uuidv4
+    default: uuidv4,
+    unique: true // Asegura que cada formulario tenga un id único
    },
 
    programaId: {
     type: String,
     ref: 'Programa',
     //required: true // Asegura que sea requerido
+    required: true, // Asegura que el programaId es obligatorio
   },
 
    nombrePrograma: {

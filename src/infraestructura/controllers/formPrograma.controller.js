@@ -7,6 +7,7 @@ const Colaborador = require('../../dominio/models/colaborador.models')
 const { enviarCorreo } = require('../helpers/email.helpers');
 // Controlador para crear un formulario de programa
 const crearFormularioPrograma = async (req, res) => {
+  let correoEnviado = false; // Variable para rastrear el envío del correo
 
   //se modifico el idPrograma por nombrePrograma para pasarlo al crear el formulario.
   const { nombrePrograma, campos} = req.body;
@@ -69,6 +70,7 @@ if (colaboradorResponsable.email) {
     } catch (error) {
       console.error('Error al crear el formulario:', error); // Log completo del error
       res.status(500).json({ error: 'Error al crear el formulario', detalles: error.message });
+
     }
 
 
@@ -99,169 +101,91 @@ if (colaboradorResponsable.email) {
       res.status(500).json({ error: 'Error al obtener el formulario', detalles: error.message});
     }
   };
-  const diligenciarFormularioPrograma = async (req, res) => {
 
-    const { idFormulario } = req.params;
-    const { colaboradorId} = req.params;
-    const { valores} = req.body;
-// Agregar el log para ver el ID del colaborador recibido
-console.log('Colaborador ID recibido:', colaboradorId);
-
-    try {
-
-   //verificar que exista el colaborador que diligenciara el formulario
-   const colaborador = await Colaborador.findOne({
-    idColaborador: colaboradorId // Asegúrate de que este sea el campo correcto
-});
-
-if (!colaborador){
-  return res.status(404).json({ error: 'Colaborador no enconrado'});
-}
-
-      // Se verifica que el formulario exista
-        const formulario = await FormularioPrograma.findOne({ idFormulario });
-
-        if (!formulario) {
-            return res.status(404).json({ error: 'Formulario no encontrado' });
-        }
-// Asegúrate de que 'valores' sea un array
-if (!Array.isArray(valores)) {
-  return res.status(400).json({ error: 'Los valores deben ser un array' });
-}
-
-        // Validar que no existan valores duplicados en 'valoresDiligenciados'
-        const valoresDuplicados = formulario.valoresDiligenciados.some((conjuntoValores) => {
-          return conjuntoValores.valores.some(campoExistente =>
-              valores.some(campoNuevo =>
-                  campoNuevo.nombreCampo === campoExistente.nombreCampo && campoNuevo.valor === campoExistente.valor
-              )
-          );
-      });
-
-        if (valoresDuplicados) {
-            return res.status(400).json({ error: 'Ya existe un conjunto de valores duplicados' });
-        }
-
-        // Se valida cada campo contra los tipos definidos en el formulario
-        const camposFormulario = formulario.campos;
-        const valoresDiligenciados = [];
-
-        for (let valorCampo of valores) {
-            const campoFormulario = camposFormulario.find(campo => campo.nombre === valorCampo.nombreCampo);
-
-            if (!campoFormulario) {
-                return res.status(400).json({ error: `Campo ${valorCampo.nombreCampo} no existe en el formulario` });
-            }
-
-            // Valida el tipo de valor (string o number)
-            if (campoFormulario.tipo === 'string' && typeof valorCampo.valor !== 'string') {
-                return res.status(400).json({ error: `El campo ${valorCampo.nombreCampo} debe ser un string` });
-            }
-            if (campoFormulario.tipo === 'number' && typeof valorCampo.valor !== 'number') {
-                return res.status(400).json({ error: `El campo ${valorCampo.nombreCampo} debe ser un número` });
-            }
-
-             // Se agrega el valor a la lista de valores diligenciados
-             valoresDiligenciados.push({
-              nombreCampo: valorCampo.nombreCampo,
-              valor: valorCampo.valor
-          });
-        }
-// Asignar el colaboradorId al formulario
-formulario.colaboradorId = colaboradorId;
-
-         // Se agrega un nuevo conjunto de valores diligenciados al formulario
-         formulario.valoresDiligenciados.push({
-          valores: valoresDiligenciados,
-          fechaDiligencia: new Date()
-      });
-
-
-         //formulario.valores = valoresDiligenciados;
-         // Se guarda el formulario con los nuevos valores
-         await formulario.save();
-         res.status(200).json({ message: 'Formulario diligenciado correctamente', formulario });
-
-
-    } catch (error) {
-        console.error('Error al diligenciar el formulario:', error);
-        res.status(500).json({ error: 'Error al diligenciar el formulario', detalles: error.message });
-    }
-};
 
 // Diligenciar formulario, obteniéndolo por nombre de programa
 const diligenciarFormulario = async (req, res) => {
-  const { nombrePrograma } = req.query; // Obtener el nombrePrograma desde los parámetros de consulta
-  const { valores } = req.body; // Capturar los valores diligenciados desde el cuerpo de la solicitud
-
   try {
-    if (!nombrePrograma) {
+    const { nombrePrograma, valores } = req.body;
+
+    // Validación de campos requeridos
+    if (!nombrePrograma || !valores || !Array.isArray(valores)) {
       return res.status(400).json({
-        msg: 'El nombre del programa es requerido como parámetro de consulta.',
+        ok: false,
+        msg: 'El nombre del programa y los valores son obligatorios.',
       });
     }
 
-    //Buscar el programa por nombre
-    const programa = await Programa.findOne({ nombrePrograma });
-    if (!programa) {
-      return res.status(404).json({
-        msg: `No se encontró ningún programa con el nombre: ${nombrePrograma}`,
-      });
-    }
-
-//verificar que el usuario logueado sea el colaborador responsable del programa
-const usuario = req.userSession;
-if(programa.colaboradorResponsable.trim() !== usuario.colaborador.trim()){
-  return res.status(403).json({
-    msg: "No tienes permisos para diligenciar el formulario",
-  });
-}
-
-    // Buscar el formulario asociado al programa
-    const formulario = await FormularioPrograma.findOne({ nombrePrograma });
+    // Buscar el formulario por nombre del programa
+    const formulario = await FormularioPrograma.findOne({nombrePrograma: nombrePrograma});
 
     if (!formulario) {
       return res.status(404).json({
-        msg: `No se encontró ningún formulario asociado al programa: ${nombrePrograma}`,
+        ok: false,
+        msg: 'Formulario no encontrado para el programa indicado.',
       });
     }
 
-    // Validar que los valores enviados correspondan a los campos del formulario
-    const camposValidos = formulario.campos.map((campo) => campo.nombre);
-    const valoresInvalidos = valores.filter(
-      (valor) => !camposValidos.includes(valor.nombreCampo)
-    );
+    // Validar que los campos enviados coincidan con los definidos en el formulario
+    const camposValidos = formulario.campos.map(campo => campo.nombre);
+    const valoresInvalidos = valores.filter(v => !camposValidos.includes(v.nombreCampo));
 
     if (valoresInvalidos.length > 0) {
       return res.status(400).json({
-        msg: 'Algunos campos enviados no son válidos para este formulario.',
-        valoresInvalidos,
+        ok: false,
+        msg: 'Uno o más campos no son válidos para este formulario.',
+        invalidFields: valoresInvalidos.map(v => v.nombreCampo),
+      });
+    }
+    //validar valores duplicados
+    const valoresDuplicados = valores.filter(v => {
+      return formulario.valoresDiligenciados.some(diligenciado => diligenciado.valores.some(
+        valor => valor.nombreCampo === v.nombreCampo &&
+        valor.valor == v.valor
+      )
+      );
+    });
+    if ( valoresDuplicados.length > 0){
+      return res.status(400).json({
+        ok: false,
+        msg: 'Uno o más valores ya existen en los datos diligenciados',
+        duplicados: valoresDuplicados.map((v) => ({
+          nombreCampo: v.nombreCampo,
+        valor: v.valor,
+      })),
       });
     }
 
-    // Agregar los valores diligenciados al formulario
-    formulario.valoresDiligenciados.push({
-      fechaDiligencia: new Date(),
-      valores,
-      //colaboradorId: usuario.colaborador,
-      //colaboradorNombre: usuario.nombreUsuario,
-    });
+    // Estructurando los valores diligenciados con la fecha y los valores
+    const fechaDiligencia = new Date();
 
-    // Guardar el formulario actualizado
+
+    const valoresDiligenciados = valores.map(v => ({
+      nombreCampo: v.nombreCampo,
+      valor: v.valor,
+    }));
+
+    // Agregar los valores diligenciados con la fecha
+    formulario.valoresDiligenciados.push({ fechaDiligencia, valores: valoresDiligenciados });
+
+    // Guardar los cambios en la base de datos
     await formulario.save();
 
     res.json({
-      msg: 'Formulario diligenciado correctamente.',
-      formulario,
+      ok: true,
+      msg: 'Formulario diligenciado exitosamente.',
+      formulario: formulario, // Retornar el formulario actualizado
     });
+
   } catch (error) {
-    console.error(error);
+    console.error('Error al diligenciar formulario:', error);
     res.status(500).json({
-      msg: 'Error al diligenciar el formulario.',
-      error: error.message,
+      ok: false,
+      msg: 'Error interno del servidor.',
     });
   }
 };
+
 
 //se obtiene un formulario por id de formulario
 const obtenerFormulariooPorId = async (req, res) => {
@@ -319,7 +243,6 @@ const buscarFormulariosPorNombrePrograma = async (req, res) => {
   module.exports = {
     crearFormularioPrograma,
     obtenerFormularioPorId,
-    diligenciarFormularioPrograma,
     buscarFormulariosPorNombrePrograma,
     obtenerFormulariooPorId,
     diligenciarFormulario

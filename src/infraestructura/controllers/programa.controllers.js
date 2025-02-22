@@ -199,14 +199,14 @@ const activarPrograma = async (req, res) => {
 };
 /*confirmar programas mediante la asignación de colaboradores. Evaluación y Activación de Programas en el CDC -super historia*/
 const confirmaPrograma = async (req, res) => {
-    let {programa, colaborador: colaboradorAsignado, body:datos} = req;
+    let {programa, colaborador: colaboradorAsignado} = req;
     try {
-        validarFormato(datos);
+       // validarFormato(datos);
         if(programa.estado === "ACTIVO") throw new Error("El programa ya ha sido validado y confirmado");
 
         await updatePrograma(programa, {estado: "CONFIRMAR"});
         programa.colaboradorResponsable = colaboradorAsignado.idColaborador;
-        programa.formato = datos;
+        //programa.formato = datos;
 
         const programaActivado = await guardarPrograma(programa);
         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
