@@ -46,7 +46,7 @@ const validarExpiracionToken = (expiracion) =>{
     try {
         const ahora = Math.floor(Date.now() / 1000);
         const diferencia = (expiracion - ahora) / 60;
-        console.log(`si la diferencia es menor a 10 se renueva el token, diferencia: ${diferencia}`);
+        console.log(`si la diferencia es menor a 10 se renueva el token aplicacion, diferencia: ${diferencia}`);
         if(diferencia <= 10){
             return true;
         }

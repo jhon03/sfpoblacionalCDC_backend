@@ -9,7 +9,7 @@ const { dbConecction } = require('../../config/db/mongoDB.db');
 const { crearUserAdmin } = require('../../config/admin/userAdmin.js');
 const { limitPayloadSize, limitPeticionIp, limitSpeedPeticion } = require('../../infraestructura/middlewares/security.middleware.js');
 
-class Server { 
+class Server {  
 
     constructor(){
         this.app = express();
@@ -52,6 +52,7 @@ class Server {
     };
 
     routes(){
+        this.app.use('', require('../../infraestructura/routes/inicial.routes.js'));
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
         this.app.use(this.paths.programa, require('../../infraestructura/routes/programa.routes'));
