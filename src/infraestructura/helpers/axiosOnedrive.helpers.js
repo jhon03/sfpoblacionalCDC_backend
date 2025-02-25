@@ -87,9 +87,26 @@ const getTokenWithAuthorizationCode = async(code) => {
     }
 }
 
+const deleteSource = async(url, tokenAcess) => {
+    try {
+        const response = await axios.delete(
+            url, 
+            {
+                headers: {
+                    Authorization: `Bearer ${tokenAcess}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 module.exports = {
     createSource,
+    deleteSource,
     getSource,
     getTokenRefreshed,
     uploadSource,

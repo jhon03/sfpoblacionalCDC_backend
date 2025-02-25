@@ -1,4 +1,4 @@
-const { uploadFile, getFilesInFolder, createLinkShared, createFolder, requestNewToken, getInformationFile, loginMicrosoft, obtenerTokenMicrosoft } = require('../controllers/onedrive.controller');
+const { uploadFile, getFilesInFolder, createLinkShared, createFolder, requestNewToken, getInformationFile, loginMicrosoft, obtenerTokenMicrosoft, deleteFile } = require('../controllers/onedrive.controller');
 const { getTokenRefreshed } = require('../helpers/axiosOnedrive.helpers');
 const { rolesAutorizados, allRols } = require('../helpers/rol.helpers');
 const { userRolPermitido } = require('../middlewares/auth.middleware');
@@ -12,12 +12,13 @@ const router = new Router();
 
 // router.get('/redirect', obtenerTokenMicrosoft)
 
-// en este endpoint se permiten todos los roles
+// en este endpoint se permiten todos los roles, obtener archivos de una carpeta
 router.get('/getFiles',[
     validarJWT,
     userRolPermitido(allRols),
     authenticate,
 ], getFilesInFolder);
+
 
 //obtener informacion del archivo
 router.get('/getFileInfo/:itemId',[
@@ -49,6 +50,15 @@ router.post('/createFolder/:folderName', [
     ]),
     authenticate
 ], createFolder);
+
+//endpoint eliminar achivo y enviarlo a la papelera
+router.delete('/deleteFile/:itemId', [
+    validarJWT,
+    userRolPermitido([
+        rolesAutorizados.ADMINISTRADOR, rolesAutorizados.DIRECTOR, rolesAutorizados.SUPERUSER
+    ]),
+    authenticate
+], deleteFile)
 
 //router.get('/getNewToken', requestNewToken);
 

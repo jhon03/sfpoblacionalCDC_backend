@@ -1,5 +1,5 @@
 
-const { uploadSource, getSource, createSource, getTokenRefreshed, getTokenWithAuthorizationCode } = require("../helpers/axiosOnedrive.helpers");
+const { uploadSource, getSource, createSource, getTokenRefreshed, getTokenWithAuthorizationCode, deleteSource } = require("../helpers/axiosOnedrive.helpers");
 const { saveToken, createToken, findToken, validarExpiracionToken, updateToken } = require("../helpers/token.helpers");
 const { num_random } = require("../helpers/globales.helpers");
 const { leerArchivo } = require("../helpers/fileSystem/fs.helpers");
@@ -46,7 +46,7 @@ const getFilesInFolder = async (req, res) => {
     const {pathFolder} = req.body;
     try {
         const token = req.token;
-        const url = `${process.env.GRAPH_API_ENDPOINT}/me/drive/root`
+        const url = `${process.env.GRAPH_API_ENDPOINT}/me/drive/root:/${pathFolder}:/children`
         const response = await getSource(url, token.accessToken);
         res.json({
             msg: 'archivos obtenidos con exito',
@@ -159,9 +159,28 @@ const requestNewToken = async (token) => {
     }
 }
 
+const deleteFile = async (req, res) => {
+    const token = req.token;
+    const {itemId} = req.params;
+    try {
+        const url = `${process.env.GRAPH_API_ENDPOINT}/me/drive/items/${itemId}`;
+        const response = await deleteSource(url, token.accessToken);
+        res.status(200).json({
+            msg: `Archivo: ${itemId} eliminado con exito`,
+            data: response.data
+        })
+    } catch (error) {
+        res.status(400).json({
+            msg: `Error al eliminar archivo: ${itemId} `,
+            error: error
+        })
+    }
+}
+
 module.exports = {
     createLinkShared,
     createFolder,
+    deleteFile,
     getFilesInFolder,
     getInformationFile,
     requestNewToken,
