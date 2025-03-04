@@ -35,6 +35,13 @@ const colaboradorSchema = Schema({
     fechaModificacion: {
         type: String,
         default: "Sin modificaciones",
+    },
+
+    email: {
+        type: String,
+        required: [true, 'El correo electrónico del colaborador es requerido'],
+        unique: true,
+        match: [/.+@.+\..+/, 'El formato del correo electrónico no es válido'],
     }
 
 });

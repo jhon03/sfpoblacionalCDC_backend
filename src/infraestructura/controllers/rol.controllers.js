@@ -1,4 +1,6 @@
 const { rolToRolDto, rolsToRolsDto } = require("../../aplicacion/mappers/rol.mapper");
+const { Rol } = require("../../dominio/models");
+const { getPagesAvalaible } = require("../helpers/globales.helpers");
 const { crearInstanciaRol, guardarRol, buscarRoles, cambiarEstadoRol, updateRol, buscarRolByName } = require("../helpers/rol.helpers")
 
 const crearRol = async (req, res) => {
@@ -23,7 +25,7 @@ const crearRol = async (req, res) => {
     }
 };
 
-const FindRolById = (req, res) => {
+const findRolById = (req, res) => {
     const { rol } = req;
     try {
         const rolDto = rolToRolDto(rol);
@@ -40,10 +42,26 @@ const FindRolById = (req, res) => {
 };
 
 const findRoles = async (req, res) => {
+
+    const {tokenAcessoRenovado} = req;
+    const { page } = req.query; 
+    const limit = 8;
+    const desde = (page-1) * limit;
     try {
-        const roles = await buscarRoles();
+        const paginasDisponibles = await getPagesAvalaible(Rol, {estado:true}, limit, page);
+
+        const roles = await buscarRoles(desde, limit);
         const rolesDto = rolsToRolsDto(roles);
+        if(tokenAcessoRenovado){
+            return res.json({
+                pagina: `pagina ${page} de ${paginasDisponibles}`,
+                msg: `Se encontraron ${roles.length} roles`,
+                roles: rolesDto,
+                tokenAcessoRenovado
+            })
+        }
         return res.json({
+            pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg: `Se encontraron ${roles.length} roles`,
             roles: rolesDto
         })
@@ -54,6 +72,31 @@ const findRoles = async (req, res) => {
         })
     }
 };
+
+//endpoint para obtener las entidades sin paginacion
+const findRolsNormal = async (req, res) => {
+    const {tokenAcessoRenovado} = req;
+    try {
+        const roles = await buscarRoles();
+        const rolesDto = rolsToRolsDto(roles);
+        if(tokenAcessoRenovado){
+            return res.json({
+                msg: `Se encontraron ${roles.length} roles`,
+                roles: rolesDto,
+                tokenAcessoRenovado
+            })
+        }
+        return res.json({
+            msg: `Se encontraron ${roles.length} roles`,
+            roles: rolesDto
+        })
+    } catch (error) {
+        return res.status(400).json({
+            msg: "Error al buscar los roles",
+            error: error.message
+        })
+    }
+}
 
 const activarRol = async (req, res) => {
     let { rol } = req;
@@ -118,6 +161,7 @@ module.exports = {
     crearRol,
     desactivarRol,
     findRoles,
-    FindRolById,  
+    findRolsNormal,
+    findRolById,  
 }
 

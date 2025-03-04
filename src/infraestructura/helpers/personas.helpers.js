@@ -14,9 +14,12 @@ const obtenerPersonasEnPrograma = async (programa) => {
     }
 };
 
-const obtenerPersonas = async () => {
+const obtenerPersonas = async (desde=0, limite=5) => {
     try {
-        const personas = await Persona.find({estado: "ACTIVO"});
+        const personas = await 
+            Persona.find({estado: "ACTIVO"})
+            .skip(desde)
+            .limit(limite);
         return personas;
     } catch (error) {
         throw new Error("Error al obtener las personas");

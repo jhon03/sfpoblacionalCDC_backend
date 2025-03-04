@@ -1,4 +1,12 @@
 
+const validarclaves = (objetoOriginal, objetoPeticion) => {
+    for(let c in objetoPeticion){
+        c = c.toUpperCase();
+        if(!objetoOriginal[c]){
+            throw new Error(`El campo ${c} no esta permitido`);
+        }
+    };
+}
 
 const validarFormato = (formato) => {
 
@@ -15,6 +23,7 @@ const validarFormato = (formato) => {
 const convertirClavesAMayusculas = (obj) => {
     const nuevoObjeto = {};
     for (let [key, value] of Object.entries(obj)) {
+        if(typeof value === 'string') value = value.toUpperCase();
         nuevoObjeto[key.toUpperCase()] = value;
     }
     return nuevoObjeto;
@@ -54,9 +63,26 @@ const compararDatosPersonaWithFormato = (formato, datos = {}) => {
     }
 }
 
+//Helper para validar dos objetos y su similitud
+const objetosIguales = (objetoOriginal, objetoPeticion) => {
+    try {
+        for(let [key, value] of Object.entries(objetoOriginal)){
+            if(value !== objetoPeticion[key]){
+                //console.log( `La clave ${key} tiene un valor diferente` );
+                return false;
+            }
+        };
+        return true;
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     convertirClavesAMayusculas,
     convertirValuesToUpperCase,
     compararDatosPersonaWithFormato,
+    objetosIguales,
     validarFormato,
+    validarclaves
 }

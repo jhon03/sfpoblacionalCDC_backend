@@ -2,13 +2,14 @@ const Colaborador = require('../../dominio/models/colaborador.models');
 const { generarId, obtenerFechaColombia } = require('./globales.helpers');
 
 const crearInstanciaColaborador = (datos) => {
-    const {tipoIdentificacion, numeroIdentificacion, nombreColaborador} = datos;
+    const {tipoIdentificacion, numeroIdentificacion, nombreColaborador, email} = datos;
     try {
         const colaborador = new Colaborador({
             idColaborador: generarId(),
             tipoIdentificacion,
             numeroIdentificacion,
             nombreColaborador: nombreColaborador.toUpperCase(),
+            email,
             fechaCreacion: obtenerFechaColombia(),
         });
         return colaborador;
@@ -26,9 +27,12 @@ const guardarColaborador = async (colaborador) => {
     }
 };
 
-const obtenerColaboradores = async() => {
+const obtenerColaboradores = async(desde=0, limite=5) => {
     try {
-        const listaColaboradores = await Colaborador.find({estado:"ACTIVO"});
+        const listaColaboradores =
+            await Colaborador.find({estado:"ACTIVO"})
+                .skip(desde)
+                .limit(limite);
         return listaColaboradores;
     } catch (error) {
         throw new Error(error.message);
@@ -64,9 +68,10 @@ const cambiarEstadoColaborador = (colaborador, estado = "") => {
     }
 };
 
+
 const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentificacion = "" ) => {
     try {
-    
+
         const colaborador = await Colaborador.findOne({
             $or: [
                 {idColaborador},
@@ -79,18 +84,30 @@ const buscarColaboradorByIdOrDocumento = async (idColaborador="", numeroIdentifi
     }
 };
 
+
 //pendiente
 const updateColaborador = (colaborador, datos = {}) => {
-    let {nombreColaborador} = datos;
+    let {nombreColaborador,  tipoIdentificacion, numeroIdentificacion, estado} = datos;
+
     try {
-        nombreColaborador = nombreColaborador.toUpperCase();
-        if( nombreColaborador === colaborador.nombreColaborador){
-            throw new Error("El nombre que deseas colocar ya lo tienes");
-        };
-        colaborador.nombreColaborador = nombreColaborador;
-        
+
+        if (datos.nombreColaborador){
+            const nombreColaborador = datos.nombreColaborador.toUpperCase();
+            if( nombreColaborador === colaborador.nombreColaborador){
+                throw new Error("El nombre que deseas colocar ya lo tienes");
+            }
+            colaborador.nombreColaborador = nombreColaborador;
+        }
+        if (tipoIdentificacion) {
+            colaborador.tipoIdentificacion = tipoIdentificacion;
+        }
+
+            colaborador.fechaModificacion = obtenerFechaColombia();
+       //nombreColaborador = nombreColaborador.toUpperCase();
+
+
     } catch (error) {
-        throw new Error(error.message);   
+        throw new Error(error.message);
     }
 }
 

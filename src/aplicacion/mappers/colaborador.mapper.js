@@ -1,9 +1,10 @@
 const { buscarIdentificacionByIdOrName } = require("../../infraestructura/helpers/tipoIdentificacion.helpers");
+const { User} = require("../../dominio/models/user.models")
 const ColaboradorDto = require("../dtos/colaborador.dto")
-
+const ColaboradorModel = require("../../dominio/models/colaborador.models")
 
 const colaboradorToColaboradorDto = (colaborador, tipoIdentificacion) => {
-    try {      
+    try {
         const colaboradorDto = new ColaboradorDto(colaborador, tipoIdentificacion);
         return colaboradorDto;
     } catch (error) {
@@ -13,7 +14,7 @@ const colaboradorToColaboradorDto = (colaborador, tipoIdentificacion) => {
 
 const colaboradoresToColaboradoresDto = async (colaboradores) => {
     try {
-        const colaboradoresDtoPromises = colaboradores.map(async colaborador => { 
+        const colaboradoresDtoPromises = colaboradores.map(async colaborador => {
             const tipoIdentificacion = await buscarIdentificacionByIdOrName(colaborador.tipoIdentificacion);
             return colaboradorToColaboradorDto(colaborador, tipoIdentificacion);
         });
@@ -23,7 +24,6 @@ const colaboradoresToColaboradoresDto = async (colaboradores) => {
         throw new Error("Error al mapear los colaboradores");
     }
 };
-
 
 module.exports = {
     colaboradorToColaboradorDto,

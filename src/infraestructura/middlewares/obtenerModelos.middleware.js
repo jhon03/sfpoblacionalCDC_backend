@@ -112,9 +112,9 @@ const obtenerPersona = (validar = false) => {
 
 const obtenerUser = (validar=false) =>{
     return async (req, res, next) => {
-        const {idUsuario} = req.params;
+        const {idUser} = req.params;
         try {
-            const user = await buscarUserById(idUsuario);
+            const user = await buscarUserById(idUser);
             if(!user) throw new Error("No existe el usuario con el id: " + idUsuario);
             if(validar && user.estado === "INACTIVO"){
                 return res.status(404).json({
@@ -132,19 +132,21 @@ const obtenerUser = (validar=false) =>{
     }
 };
 
+//obtener rol tanto por paramentro como por el body
 const obtenerRol = (validar=false) => {
     return async(req, res, next) => {
         const { idRol } = req.params;
+        const { rol } = req.body;
         try {
-            const rol = await buscarRoleById(idRol);
-            if(!rol) throw new Error("No existe el usuario con el id: " + idUsuario);
-            if(validar && !rol.estado){
+            let rolExits = await buscarRoleById( idRol ?? rol);  
+            if(!rolExits) throw new Error(`No existe el rol con el id: ${idRol??rol}`);
+            if(validar && !rolExits.estado){
                 return res.status(404).json({
-                    msg: `El rol con el id ${idRol} se encuentra inactivo`
+                    msg: `El rol con el id ${idRol??rol} se encuentra inactivo`
                 })
             }
 
-            req.rol = rol;
+            req.rol = rolExits;
             next();
         } catch (error) {
             return res.status(400).json({
@@ -178,6 +180,7 @@ const obtenerUsuarioByUserName = (validar=false) => {
         }
     }
 }
+
 
 module.exports = {
     obtenerColaborador,

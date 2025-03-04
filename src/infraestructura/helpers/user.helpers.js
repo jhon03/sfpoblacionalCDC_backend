@@ -1,18 +1,22 @@
 const User = require('../../dominio/models/user.models');
+const { encryptarContra } = require('./globales.helpers');
 const { generarId } = require('./globales.helpers');
 
-const guardarUser = async(user, session) => {
+const guardarUser = async(user) => {
     try {
-        const userG = await user.save({session});
+        const userG = await user.save();
         return userG;
     } catch (error) {
         throw new Error("Error al guardar el usuario");
     }
 };
 
-const buscarUsers = async() => {
+const buscarUsers = async(desde=0, limite=5) => {
     try {
-        const usuarios = await User.find({estado:"ACTIVO"});
+        const usuarios = 
+            await User.find({estado:"ACTIVO"})
+                .skip(desde)
+                .limit(limite);
         return usuarios;
     } catch (error) {
         throw new Error("Error al obtener la lista de usuarios");
@@ -37,7 +41,7 @@ const crearInstanciaUser = (datos, colaborador, rol) => {
 
 const buscarUserById = async (idUsuario="") => {
     try {
-        const user = User.findOne({idUsuario});
+        const user = await User.findOne({idUsuario});
         return user;
     } catch (error) {
         throw new Error(error.message);
@@ -84,6 +88,7 @@ const actualizarUser =  (user, datos={}) => {
         if(contrasena && user.contrasena !== contrasena){
             contrasenaEsValida(contrasena);
             user.contrasena = contrasena;
+            encryptarContra(user);
             cambios = true;
         }
         return cambios;
@@ -134,6 +139,19 @@ const findUserByColaborador = async(idColaborador = "") => {
     }
 }
 
+const obtenerRefreshToken = async(idUsuario) => {
+    try {
+        const user = await buscarUserById(idUsuario);
+        if(!user) throw new Error('No existe el usuario con el id: ' + idUsuario);
+        const refreshToken = user.refreshToken;
+        if(!refreshToken) throw new Error('El usuario no tiene token de refresco');
+
+        return refreshToken;
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 
 module.exports = {
@@ -141,11 +159,12 @@ module.exports = {
     buscarUserByColaborador,
     buscarUserById,
     buscarUsers,
-    findUserByUsername,
-    findUserByColaborador,
     cambiarEstadoUser,
     contrasenaEsValida,
     crearInstanciaUser,
+    findUserByUsername,
+    findUserByColaborador,
     guardarUser,
+    obtenerRefreshToken,
 }
 

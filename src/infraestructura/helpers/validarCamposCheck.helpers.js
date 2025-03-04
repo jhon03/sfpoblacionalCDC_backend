@@ -9,6 +9,10 @@ exports.checkCamposColaborador = [
     check('numeroIdentificacion','El numero de identificacion debe ser numerica').isNumeric(),
     check('nombreColaborador', 'El nombre del colaborador es requerido').not().isEmpty(),
     check('nombreColaborador', 'El nombre del colaborador debe ser un string').isString(),
+    // Validaciones para el campo email
+    check('email', 'El correo electrónico es requerido').not().isEmpty(),
+    check('email', 'El correo electrónico debe ser un string').isString(),
+    check('email', 'El formato del correo electrónico no es válido').isEmail(),
 ];
 
 exports.checkCamposTipoIdentificacion = [
@@ -19,10 +23,14 @@ exports.checkCamposTipoIdentificacion = [
 exports.checkCamposPrograma = [
     check("nombrePrograma", "El nombre del programa es requerido").not().isEmpty(),
     check("nombrePrograma", "El nombre del programa debe ser de tipo string").isString(),
-    check("formato", "El formato del programa es requerido").not().isEmpty(),
-    check("formato", "El formato del programa no puede estar vacio").custom(noEstaVacio),
-    check("formato", "El formato del programa debe ser de tipo objeto").custom(esObjeto),
-    check("formato.*", "los campos del formato deben ser de tipo string").custom(todosCamposSonString)
+    check("informacion", "La informacion del programa es requerido").not().isEmpty(),
+    check("informacion", "La infomacion del programa no puede estar vacio").custom(noEstaVacio),
+    check("informacion", "La infomacion del programa debe ser de tipo objeto").custom(esObjeto),
+    //check("informacion.*", "los campos de la informacion deben ser de tipo string").custom(todosCamposSonString)
+]
+
+exports.checkCamposFormatoPrograma = [
+
 ]
 
 exports.checkCamposRol = [
@@ -37,4 +45,13 @@ exports.checkCamposUser = [
     check('nombreUsuario', 'El nombre de usuario debe ser de tipo string').isString(),
     check('contrasena', 'La contrasena es requerida').not().isEmpty(),
     check('contrasena', 'la contrasena debe ser de tipo string').isString(),
+    check('rol', 'El rol es requerido').not().isEmpty(),
+    check('rol', 'El rol debe de ser de tipo string').isString(),
+]
+
+exports.checkCamposLogin = [
+    check('nombreUsuario', 'El nombre de usuario es requerido').not().isEmpty(),
+    check('nombreUsuario', 'El nombre de usuario debe ser de tipo string').isString(),
+    check('contrasena', 'La contrasena es requerida').not().isEmpty(),
+    check('contrasena', 'La contrasena debe ser de tipo string').isString(),
 ]

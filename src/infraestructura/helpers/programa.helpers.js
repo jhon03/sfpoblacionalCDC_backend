@@ -2,7 +2,7 @@ const Programa = require('../../dominio/models/programa.models');
 const { validarFormato, convertirClavesAMayusculas } = require('./formato.helpers');
 const { generarId, obtenerFechaColombia } = require('./globales.helpers');
 const { obtenerPersonasEnPrograma } = require('./personas.helpers');
-
+const Colaborador = require('../../dominio/models/colaborador.models');
 const crearInstanciaPrograma = (datos, colaborador) => {
     try {
         const programa = new Programa({
@@ -10,7 +10,7 @@ const crearInstanciaPrograma = (datos, colaborador) => {
             colaboradorCreador: colaborador.idColaborador,
             nombrePrograma: datos.nombrePrograma.toUpperCase(),
             fechaCreacion: obtenerFechaColombia(),
-            formato: datos.formato,
+            informacion: datos.informacion,
         });
         return programa;
     } catch (error) {
@@ -36,20 +36,55 @@ const obtenerProgramaById = async (idPrograma) => {
     }
 };
 
-const obtenerProgramas = async() => {
+const obtenerProgramas = async(desde=0, limite=5) => {
     try {
-        const programas = await Programa.find({estado:"ACTIVO"});
+        const programas = await
+            Programa.find({estado:"ACTIVO"})
+            .skip(desde)
+            .limit(limite);
         return programas;
     } catch (error) {
-        throw new Error("Errro al obtener los programas");
+        throw error;
     }
 };
 
-const obtenerProgramaConfirmacion = async () => {
+const obtenerProgramaConfirmacion = async (desde=0, hasta=5) => {
     try {
-        const programas= await Programa.find({estado:"EN PROCESO CONFIRMACION"});
-        return programas;
-    } catch (error) {
+        const programas= await
+            Programa.find({estado:"EN PROCESO CONFIRMACION"})
+                .skip(desde)
+                .limit(hasta);
+
+                console.log("Programas obtenidos:", programas);  // Verificar qué programas se están obteniendo
+
+                if (!programas || programas.length === 0) {
+                    throw new Error("No se encontraron programas en proceso de confirmación.");
+                }
+
+            // Obtener los idColaborador de los programas obtenidos
+        const colaboradoresIds = programas.map(prog => prog.colaboradorCreador);
+        console.log("IDs de colaboradores:", colaboradoresIds);  // Verificar los ID de colaboradores
+
+
+        // Asegurarse de que los idColaborador se manejan como cadenas de texto (UUID)
+        const colaboradoresExistentes = await Colaborador.find({
+            idColaborador: { $in: colaboradoresIds } // Aseguramos que sea idColaborador y no _id
+        }).select('idColaborador'); // Seleccionamos solo el idColaborador para eficiencia
+
+        console.log("Colaboradores existentes:", colaboradoresExistentes);  // Verificar qué colaboradores existen
+
+        // Crear un conjunto con los colaboradores que existen en la base de datos
+        const colaboradoresMap = new Set(colaboradoresExistentes.map(col => col.idColaborador));
+
+        // Filtrar programas cuya propiedad 'colaboradorCreador' sea un id que existe en colaboradoresMap
+        const programasValidos = programas.filter(prog => colaboradoresMap.has(prog.colaboradorCreador));
+
+        console.log("Programas válidos:", programasValidos);  // Verificar los programas que quedan después del filtro
+
+        return programasValidos;
+
+    }catch (error) {
+        console.error("Error en obtenerProgramaConfirmacion:", error);
         throw error;
     }
 }
@@ -57,8 +92,8 @@ const obtenerProgramaConfirmacion = async () => {
 const buscarProgramaByName = async( nombrePrograma = "") => {
     try {
         const programa = await Programa.findOne({
-            nombrePrograma: nombrePrograma.toUpperCase(), 
-            estado: "ACTIVO"
+            nombrePrograma: nombrePrograma.toUpperCase(),
+            estado:  { $in: ["ACTIVO", "EN PROCESO CONFIRMACION"] }
         });
         return programa;
     } catch (error) {
@@ -67,7 +102,7 @@ const buscarProgramaByName = async( nombrePrograma = "") => {
 };
 
 const updatePrograma = async (programa, datos = {} ) => {
-    let {estado, nombrePrograma, formato} = datos;
+    let {estado, nombrePrograma, informacion} = datos;
     try {
 
         const personas = await obtenerPersonasEnPrograma(programa.idPrograma);
@@ -82,13 +117,10 @@ const updatePrograma = async (programa, datos = {} ) => {
             if(nombrePrograma.toUpperCase() !== programa.nombrePrograma) {
                 programa.nombrePrograma = nombrePrograma.toUpperCase();
             };
-            if( personas.length > 0 ){
-                throw new Error("No se puede actualizar el formato del programa, ya que hay personas en el programa");
-            };
-            
-            formato = convertirClavesAMayusculas(formato);
-            validarFormato(formato);
-            programa.formato = formato;
+
+            informacion = convertirClavesAMayusculas(informacion);
+            //validarFormato(informacion);
+            programa.informacion = informacion;
         }
     } catch (error) {
         throw new Error(error.message || error);

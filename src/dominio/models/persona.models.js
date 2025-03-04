@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const personaSchema = Schema({
+    
     idPersona: {
         type: String,
         required: [true, "El id de la persona es requerido"]

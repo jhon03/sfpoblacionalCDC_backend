@@ -19,7 +19,13 @@ const programaSchema = Schema({
 
     nombrePrograma: {
         type: String,
-        required: [true, "El nombre del formato que deseas crear es requerido"],
+        required: [true, "El nombre del programa que deseas crear es requerido"],
+        unique: true,
+    },
+
+    informacion: {
+        type: Schema.Types.Mixed,
+        required: [true, "La informacion del programa es requerido"],
     },
 
     fechaCreacion: {
@@ -34,7 +40,9 @@ const programaSchema = Schema({
 
     formato: {
         type: Schema.Types.Mixed,
-        required: [true, "El formato del programa es requerido"],
+        default: {
+            "":""
+        }
     }
 
 });
