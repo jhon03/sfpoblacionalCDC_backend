@@ -92,6 +92,11 @@ const cambiarEstado = (modelo, estado = "") => {
     }
 };
 
+//helper para crear numero de 100 a 9000
+const num_random = () => {
+    return Math.floor(100 + Math.random() * 9000)
+}
+
 const guardarModelo = async (modelo) => {
     try {
         const modeloSaved = await modelo.save();
@@ -106,6 +111,7 @@ const guardarModelo = async (modelo) => {
 
 module.exports = {
     cambiarEstado,
+    num_random,
     generarId,
     getPagesAvalaible,
     obtenerFechaColombia,

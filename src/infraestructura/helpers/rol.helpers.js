@@ -1,6 +1,20 @@
 const Rol = require('../../dominio/models/rol.models');
 const { generarId } = require('./globales.helpers');
 
+const rolesAutorizados = {
+    SUPERUSER: "SUPERUSER",
+    ADMINISTRADOR: "ADMINISTRADOR",
+    DIRECTOR: "DIRECTOR",
+    ADMINISTRADOR_PROYECTOS: "ADMINISTRADOR_PROYECTOS",
+    COLABORADOR_NORMAL: "COLABORADOR_NORMAL"
+};
+
+const allRols = [
+    "SUPERUSER", "ADMINISTRADOR", "DIRECTOR", "ADMINISTRADOR_PROYECTOS", "COLABORADOR_NORMAL"
+]
+
+
+
 const guardarRol = async(rol) => {
     try {
         const rolSaved = await rol.save();
@@ -109,6 +123,7 @@ const crearRolInicial = async () => {
 
 
 module.exports = {
+    allRols,
     buscarRoleById,
     buscarRoles,
     buscarRolByName,
@@ -116,5 +131,6 @@ module.exports = {
     crearInstanciaRol,
     crearRolInicial,
     guardarRol,
-    updateRol
+    updateRol,
+    rolesAutorizados
 }
