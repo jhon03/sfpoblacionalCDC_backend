@@ -22,7 +22,8 @@ class Server {
             persona:       '/api/persona',
             rol:           '/api/rol',
             user:          '/api/user',
-            formularioPrograma: '/api/formPrograma'
+            formularioPrograma: '/api/formPrograma',
+            emailRoutes: '/email/routes'
         };
 
         this.middlewares();
@@ -54,6 +55,8 @@ class Server {
         this.app.use(this.paths.user, require('../../infraestructura/routes/user.routes.js'));
         this.app.use(this.paths.auth, require('../../infraestructura/routes/auth.routes.js'));
         this.app.use(this.paths.formularioPrograma, require('../../infraestructura/routes/formPrograma.routes.js'));
+        this.app.use(this.paths.emailRoutes, require('../../infraestructura/routes/email.routes.js'));
+
     };
 
     async listen(){

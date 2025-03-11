@@ -6,7 +6,7 @@ const { obtenerPaginasDisponibles, getPagesAvalaible } = require("../helpers/glo
 const { obtenerPersonasEnPrograma } = require("../helpers/personas.helpers");
 const { crearInstanciaPrograma, guardarPrograma, buscarProgramaByName, obtenerProgramas, updatePrograma, obtenerProgramaConfirmacion } = require("../helpers/programa.helpers");
 
-//importancia del servicio de correo
+//importación del servicio de correo
 const { enviarCorreo} = require('../helpers/email.helpers');
 
 const crearPrograma = async (req, res) => {
