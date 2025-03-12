@@ -1,4 +1,5 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const { xss } = require('express-xss-sanitizer');
 const mongoSanitaze = require("express-mongo-sanitize");
@@ -18,6 +19,7 @@ class Server {
             auth:          '/api/auth',
             colaboradores: '/api/colaboradores',
             identificacion:'/api/identificaciones',
+            onedrive:      '/api/onedrive',
             programa:      '/api/programa',
             persona:       '/api/persona',
             rol:           '/api/rol',
@@ -44,9 +46,15 @@ class Server {
         this.app.use(      //limita la velocidad de las peticiones x en una ventana de x minutos
             limitSpeedPeticion(process.env.CANT_MINUTES_EVALUATED, process.env.LIMIT_AFTER_CAN_PETICION, process.env.SECONDS_DELAY)
         );
+        this.app.use(fileUpload({     //maneja la carga de archivos
+            useTempFiles : true,
+            tempFileDir : '/tmp/',
+            createParentPath: true,  //funcion para que al momento de crear el archivo, si queremos tambien se cree una carpeta
+        }));
     };
 
     routes(){
+        this.app.use('', require('../../infraestructura/routes/inicial.routes.js'));
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
         this.app.use(this.paths.programa, require('../../infraestructura/routes/programa.routes'));
@@ -54,9 +62,9 @@ class Server {
         this.app.use(this.paths.rol, require('../../infraestructura/routes/rol.routes.js'));
         this.app.use(this.paths.user, require('../../infraestructura/routes/user.routes.js'));
         this.app.use(this.paths.auth, require('../../infraestructura/routes/auth.routes.js'));
+        this.app.use(this.paths.onedrive, require('../../infraestructura/routes/onedrive.routes'));
         this.app.use(this.paths.formularioPrograma, require('../../infraestructura/routes/formPrograma.routes.js'));
         this.app.use(this.paths.emailRoutes, require('../../infraestructura/routes/email.routes.js'));
-
     };
 
     async listen(){
