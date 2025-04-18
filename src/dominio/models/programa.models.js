@@ -38,6 +38,18 @@ const programaSchema = Schema({
         default: ""
     },
 
+    // para formatos de onedrive
+    formatosActividades: {
+        fechaCreacion: String,
+        archivos: [
+            {
+            name: String,
+            webUrl: String,
+            downloadUrl: String
+            }
+        ]
+    },
+
     formato: {
         type: Schema.Types.Mixed,
         default: {

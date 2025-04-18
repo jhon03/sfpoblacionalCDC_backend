@@ -3,13 +3,16 @@ const { saveToken, createToken, findToken, validarExpiracionToken, updateToken }
 const { num_random } = require("../helpers/globales.helpers");
 const { leerArchivo } = require("../helpers/fileSystem/fs.helpers");
 
+const  Programas = require("../../dominio/models/programa.models");//se importa el modelo de programas para asociar el formato con un programa
+
+
+
 const apiEndpont = process.env.GRAPH_API_ENDPOINT;
 
 const loginMicrosoft = (req, res) => {
     const authUrl = `${process.env.MICROSOFT_LOGIN_URL}/authorize?client_id=${process.env.CLIENT_ID}&scope=files.readwrite offline_access&response_type=code&redirect_uri=${process.env.REDIREC_URI}`
     res.redirect(authUrl);
 }
-
 const obtenerTokenMicrosoft = async(req, res) => {
     const code = req.query.code;
     const tokenResponse = await getTokenWithAuthorizationCode(code);
@@ -20,20 +23,54 @@ const obtenerTokenMicrosoft = async(req, res) => {
 
 
 const uploadFile = async (req, res) => {
+//validar si se envio el archivo
+    if (!req.files || !req.files.archivo || !req.body.nombrePrograma)//se  !req.body.nombrePrograma
+    //para validar si se envío el archivo con el nombre del programa para buscarlo por programa
+     {
+        return res.status(400).json({ error: "No se ha enviado ningún archivo" });
+    }
+
     const { name: fileName, mimeType, tempFilePath} = req.files.archivo;
+    const { nombrePrograma} = req.body;//para pasar el nombre del programa al enviar el archivo
     const token = req.token; //tomamos el token de acesso desde la req
     const folderPath = `PRUEBAS_API`;   //folder donde se guardara el archivo
     const filePath = `${num_random()}_${fileName}`;    //nombre del archivo en el onedrive
+
     try {
+
+
+        //buscar el programa con estado "Activo" y nombre específico
+        const programa = await Programas.findOne({ nombrePrograma, estado: "ACTIVO"});
+
+        if (!programa) {
+        return res.status(404).json({error: "No se encontro un programa activo con ese nombre"});
+        }
         const fileContent = leerArchivo(tempFilePath);
         const url = `${apiEndpont}/me/drive/root:/${folderPath}/${filePath}:/content`;
         const response = await uploadSource(url, fileContent, mimeType, token.accessToken);
+         const fileData = response.data;
+
+       //Guardar la información del archivo en la colección de programas
+       if (!programa.formatosActividades.archivos) {
+        programa.formatosActividades.archivos = [];
+    }
+
+       programa.formatosActividades.archivos.push({
+        name: fileData.name,
+        webUrl: fileData.webUrl,
+        downloadUrl: fileData["@microsoft.graph.downloadUrl"],
+
+
+       })
+
+
+       await programa.save();
+
         res.status(201).json({
-            response: response.data
-        });
+            response: "Archivo subido y asignado al programa", programa});
 
     } catch (error) {
-        console.error('Error uploading file:', error);
+       console.error('Error uploading file:', error.response?.data || error.message);
         res.status(500).json({
             error: error.message
         });

@@ -56,7 +56,7 @@ router.get('/activar/:idPrograma', [
 
 router.get('/obtenerProgramas',
     validarJWT,
-    userRolPermitido(['DIRECTORA ',' LIDER DE PROYETOS ']),
+    userRolPermitido(['DIRECTORA ',' LIDER DE PROYETOS ', 'SUPERUSER']),
     obtenerListaProgramas)
 
 router.get('/obtenerProgramasConfirmacion', [

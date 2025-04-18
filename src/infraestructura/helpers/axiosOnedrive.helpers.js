@@ -14,6 +14,7 @@ const getSource = async (url, tokenAcess) => {
         );
         return response;
     } catch (error) {
+        console.error('Error en axios request:', error.response?.data || error.message);
         throw error;
     }
 }
@@ -28,6 +29,7 @@ const createSource = async (url, body, headers) => {
         console.log("creacion1")
         return response;
     } catch (error) {
+        console.error('Error en axios request:', error.response?.data || error.message);
         throw error;
     }
 }
@@ -44,6 +46,7 @@ const uploadSource = async (url, fileContent, mimeType, tokenAcess) => {
         );
         return response;
     } catch (error) {
+        console.error('Error en axios request:', error.response?.data || error.message);
         throw error;
     }
 };
@@ -51,6 +54,8 @@ const uploadSource = async (url, fileContent, mimeType, tokenAcess) => {
 
 
 const getTokenRefreshed = async (tokenRequest) => {
+
+
     try {
         const response = await axios.post(
             'https://login.microsoftonline.com/common/oauth2/v2.0/token',
@@ -61,6 +66,7 @@ const getTokenRefreshed = async (tokenRequest) => {
         );
         return response;
     } catch (error) {
+        console.error('Error en axios request:', error.response?.data || error.message);
         throw error;
     }
 }
@@ -73,7 +79,8 @@ const getTokenWithAuthorizationCode = async(code) => {
         client_secret: process.env.CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: process.env.REDIREC_URI
+        redirect_uri: process.env.REDIREC_URI,
+        //refresh_token: process.env.refresh_token
     };
     try {
         const response = await axios.post(tokenUrl, qs.stringify(params), {
@@ -81,8 +88,11 @@ const getTokenWithAuthorizationCode = async(code) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
         });
+        
         return response.data
+
     } catch (error) {
+        console.error('Error en axios request:', error.response?.data || error.message);
         throw error;
     }
 }
