@@ -59,6 +59,13 @@ class Server {
     };
 
     routes(){
+
+    // Ruta raíz
+    this.app.get('/', (req, res) => {
+        res.send('API poblacionalCDC funcionando correctamente 🚀');
+    });
+
+
         this.app.use('', require('../../infraestructura/routes/inicial.routes.js'));
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
