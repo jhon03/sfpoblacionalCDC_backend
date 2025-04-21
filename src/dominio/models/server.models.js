@@ -14,7 +14,7 @@ class Server {
     constructor(){
         this.app = express();
       // Configura Express para confiar en el proxy (necesario para Railway y otros servicios)
-      this.app.set('trust proxy', 1); // O usa true para confiar en todos los proxies
+ this.app.set('trust proxy', 1); // O usa true para confiar en todos los proxies
 
 
         this.port = process.env.PORT;
@@ -59,13 +59,6 @@ class Server {
     };
 
     routes(){
-
-    // Ruta raíz
-    this.app.get('/', (req, res) => {
-        res.send('API poblacionalCDC funcionando correctamente 🚀');
-    });
-
-
         this.app.use('', require('../../infraestructura/routes/inicial.routes.js'));
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
