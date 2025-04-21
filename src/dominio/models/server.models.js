@@ -13,6 +13,10 @@ class Server {
 
     constructor(){
         this.app = express();
+      // Configura Express para confiar en el proxy (necesario para Railway y otros servicios)
+      this.app.set('trust proxy', 1); // O usa true para confiar en todos los proxies
+
+
         this.port = process.env.PORT;
 
         this.paths = {
