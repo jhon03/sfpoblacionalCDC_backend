@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { crearFormularioPrograma, obtenerFormularioPorId, obtenerFormulariooPorId, buscarFormulariosPorNombrePrograma, diligenciarFormulario} = require('../controllers/formPrograma.controller');
 const { validarJWT } = require('../middlewares/jwt.middleware');
 const { userRolPermitido } = require('../middlewares/auth.middleware')
-
+const { rolesAutorizados, allRols} = require('../helpers/rol.helpers');
 
 const router = new Router();
 
@@ -33,8 +33,7 @@ router.get('/buscar', buscarFormulariosPorNombrePrograma);
 router.post('/diligenciar', [
 
     validarJWT, //valida el token jwt
-   userRolPermitido([' LIDER DE PROYETOS '])
-
+     userRolPermitido([' LIDER DE PROYETOS ', 'SUPERUSER']),
 
 ], diligenciarFormulario);
 

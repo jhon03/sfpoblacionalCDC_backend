@@ -25,7 +25,8 @@ class Server {
             rol:           '/api/rol',
             user:          '/api/user',
             formularioPrograma: '/api/formPrograma',
-            emailRoutes: '/email/routes'
+            emailRoutes: '/email/routes',
+            asistencias: '/api/asistencias'
         };
 
         this.middlewares();
@@ -65,6 +66,7 @@ class Server {
         this.app.use(this.paths.onedrive, require('../../infraestructura/routes/onedrive.routes'));
         this.app.use(this.paths.formularioPrograma, require('../../infraestructura/routes/formPrograma.routes.js'));
         this.app.use(this.paths.emailRoutes, require('../../infraestructura/routes/email.routes.js'));
+        this.app.use(this.paths.asistencias, require('../../infraestructura/routes/asistencias.router.js'));
     };
 
     async listen(){
