@@ -7,6 +7,8 @@ const user               = require('./user.models');
 const TipoIdentificacion = require('./tipoIdentificacion.models');
 const FormularioPrograma = require('./formularioPrograma.model');
 const Asistencia = require('./asistencias.models');
+const RegistroNecesidad = require('./registroNecesidades.model');
+const ContadorItem = require('./contadorItem.model');
 module.exports = {
     Colaborador,
     Persona,
@@ -16,5 +18,7 @@ module.exports = {
     user,
     TipoIdentificacion,
     FormularioPrograma,
-    Asistencia
+    Asistencia,
+    RegistroNecesidad,
+    ContadorItem
 }

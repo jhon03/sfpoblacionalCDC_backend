@@ -30,7 +30,8 @@ class Server {
             user:          '/api/user',
             formularioPrograma: '/api/formPrograma',
             emailRoutes: '/email/routes',
-            asistencias: '/api/asistencias'
+            asistencias: '/api/asistencias',
+            registroNecesidad: '/api/necesidades'
         };
 
         this.middlewares();
@@ -59,6 +60,11 @@ class Server {
     };
 
     routes(){
+         // Ruta raíz
+    this.app.get('/', (req, res) => {
+        res.send('API sfpoblacionalCDC funcionando correctamente 🚀');
+    });
+
         this.app.use('', require('../../infraestructura/routes/inicial.routes.js'));
         this.app.use(this.paths.colaboradores, require('../../infraestructura/routes/colaborador.routes') );
         this.app.use(this.paths.identificacion, require('../../infraestructura/routes/tipoIdentificacion.routes') );
@@ -71,6 +77,8 @@ class Server {
         this.app.use(this.paths.formularioPrograma, require('../../infraestructura/routes/formPrograma.routes.js'));
         this.app.use(this.paths.emailRoutes, require('../../infraestructura/routes/email.routes.js'));
         this.app.use(this.paths.asistencias, require('../../infraestructura/routes/asistencias.router.js'));
+        this.app.use(this.paths.registroNecesidad, require('../../infraestructura/routes/registroNecesidad.routes.js'));
+
     };
 
     async listen(){
