@@ -6,13 +6,7 @@ const registrarAsistencia = async (req, res) => {
   try {
     const { numeroDocumento, nombreActividad } = req.body;
 
-    //const registradoPor= req.userSession.idColaborador; // Usuario autenticado desde el token
 
-    /*console.log('Registrado por:', registradoPor); // Log para verificar el uuid
-    if (!registradoPor) {
-      return res.status(400).json({ message: 'No se pudo obtener el identificador del usuario autenticado' });
-    }*/
-    // Buscar participante por número de documento (nombreCampo flexible)
    const formulario = await FormulariosProgramas.findOne({
       "valoresDiligenciados.valores": {
         $elemMatch: {
@@ -49,13 +43,25 @@ const registrarAsistencia = async (req, res) => {
       return res.status(400).json({ message: 'Nombre del participante no encontrado' });
     }
 
+   // Normalizar el nombre de la actividad antes de guardar
+    const normalizarTexto = (texto) => {
+      return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, '');
+    };
+
+
+    const actividadNormalizada = normalizarTexto(nombreActividad);
+
     const nuevaAsistencia = new Asistencia({
       participanteNombre: nombreParticipante,
       numeroDocumento,
-      actividadNombre: nombreActividad,
+    actividadNombre: actividadNormalizada, //  AQUI SE GUARDA NORMALIZADO
       programaId: formulario.programaId,
       nombrePrograma: formulario.nombrePrograma,
-    
+
     });
 
     await nuevaAsistencia.save();
@@ -72,16 +78,58 @@ const contarAsistentesPorActividad = async (req, res) => {
   try {
     const { nombreActividad } = req.params;
 
-    const total = await Asistencia.countDocuments({ actividadNombre: nombreActividad });
+ // Normalización consistente con registrarAsistencia
+    const normalizar = (texto) =>
+      texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "");
 
-    res.status(200).json({ actividad: nombreActividad, totalAsistentes: total });
+    const nombreNormalizado = normalizar(nombreActividad);
+// Busca por el campo ya normalizado
+    const total = await Asistencia.countDocuments({
+      actividadNombre: nombreNormalizado
+    });
+
+ res.status(200).json({ actividad: nombreNormalizado, totalAsistentes: total });
+    //const total = await Asistencia.countDocuments({ actividadNombre: nombreActividad });
+
+    //res.status(200).json({ actividad: nombreActividad, totalAsistentes: total });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al contar asistentes.' });
   }
 };
 
+//Obtener totales de asistentes por actividades para gráfica
+const obtenerTotalesPorActividades = async (req, res) => {
+  try {
+    const totales = await Asistencia.aggregate([
+      {
+        $group: {
+          _id: "$actividadNombre",
+          totalAsistentes: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          actividad: "$_id",
+          totalAsistentes: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(totales);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener los totales por actividades.' });
+  }
+};
+
 module.exports = {
   registrarAsistencia,
-  contarAsistentesPorActividad
+  contarAsistentesPorActividad,
+  obtenerTotalesPorActividades
 };

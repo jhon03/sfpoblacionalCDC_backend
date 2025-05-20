@@ -1,7 +1,7 @@
 //const express = require('express');
 const { Router } = require('express');
 
-const { registrarAsistencia, contarAsistentesPorActividad } = require('../controllers/asistencia.controller');
+const { registrarAsistencia, contarAsistentesPorActividad, obtenerTotalesPorActividades } = require('../controllers/asistencia.controller');
 const { validarJWT } = require('../middlewares/jwt.middleware');
 
 const { userRolPermitido } = require('../middlewares/auth.middleware');
@@ -19,8 +19,11 @@ userRolPermitido([' LIDER DE PROYETOS ']),
 //userRolPermitido(allRols),
 ],registrarAsistencia);
 
-router.get('/asistencias/actividad/:nombreActividad', [
+router.get('/actividad/:nombreActividad', [
 
 ], contarAsistentesPorActividad);
 
+
+router.get('/totales-actividades', [
+], obtenerTotalesPorActividades);
 module.exports = router;
