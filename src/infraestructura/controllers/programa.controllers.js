@@ -258,27 +258,30 @@ const enviarCorreoController = async (req, res) => {
     }
 };
 
-//endpoint antiguo inactivo
-// const crearFormatoPrograma = async (req, res) => {
-//     let {programa, body: datos} = req;
-//     try {
-//         validarFormato(datos);
-//         programa.formato = datos;
-//         await guardarPrograma(programa);
-//         const colaborador = await buscarColaboradorByIdOrDocumento(programa.colaboradorCreador);
-//         const programaDto = programaToProgramaDto(programa, colaborador);
-//         return res.status(201).json({
-//             msg: "El formato a sido añadido correctamente al programa",
-//             programa: programaDto
-//         })
-//     } catch (error) {
-//         return res.status(400).json({
-//             msg: "Error al crear el formato del programa",
-//             error: error.message
-//         })
-//     }
-// }
+//obtener los archivos de one drive
+const obtenerArchivosPlaneacion = async (req, res) => {
+  const { idPrograma } = req.params;
 
+  try {
+    const programa = await Programa.findOne(
+      { idPrograma },
+      { nombrePrograma: 1, 'formatosActividades.archivos': 1, _id: 0 }
+    );
+
+    if (!programa) {
+      return res.status(404).json({ mensaje: 'Programa no encontrado' });
+    }
+
+    return res.json({
+      nombrePrograma: programa.nombrePrograma,
+      archivos: programa.formatosActividades?.archivos || []
+    });
+
+  } catch (error) {
+    console.error('Error al obtener archivos de planeación:', error);
+    return res.status(500).json({ mensaje: 'Error al obtener archivos' });
+  }
+};
 
 
 
@@ -290,5 +293,6 @@ module.exports = {
     desactivarPrograma,
     obtenerListaProgramas,
     obtenerProgramasEnEspera,
-    enviarCorreoController
+    enviarCorreoController,
+    obtenerArchivosPlaneacion
 }

@@ -1,6 +1,6 @@
 
 const { Router } = require('express');
-const { crearPrograma, obtenerListaProgramas, actualizarPrograma, desactivarPrograma, activarPrograma, confirmaPrograma, obtenerProgramasEnEspera, crearFormatoPrograma } = require('../controllers/programa.controllers');
+const { crearPrograma, obtenerListaProgramas, actualizarPrograma, desactivarPrograma, activarPrograma, confirmaPrograma, obtenerProgramasEnEspera, crearFormatoPrograma, obtenerArchivosPlaneacion } = require('../controllers/programa.controllers');
 const { obtenerColaborador, obtenerPrograma } = require('../middlewares/obtenerModelos.middleware');
 const { validateCamposPermitidos } = require('../middlewares/validarCampos.middlewares');
 const { checkCamposPrograma } = require('../helpers/validarCamposCheck.helpers');
@@ -22,7 +22,7 @@ const rolesPermitidos = [
     "ADMINISTRADOR",
     " PROFESIONAL DE PROYECTOS",
     "DIRECTORA ",
-    " LIDER DE PROYETOS "
+    "LIDER DE PROYETOS"
 ]
 
 router.put('/actualizar/:idPrograma', [
@@ -56,7 +56,7 @@ router.get('/activar/:idPrograma', [
 
 router.get('/obtenerProgramas',
     validarJWT,
-    userRolPermitido(['DIRECTORA ',' LIDER DE PROYETOS ', 'SUPERUSER']),
+    userRolPermitido(['DIRECTORA ','LIDER DE PROYETOS', 'SUPERUSER']),
     obtenerListaProgramas)
 
 router.get('/obtenerProgramasConfirmacion', [
@@ -76,12 +76,12 @@ router.post('/confirmar/:idPrograma/colAsignado/:idColaborador', [
 router.post('/enviar',
      enviarCorreoController);
 
-//endpoint antiguo inactivo
-// router.post('/crearFormato/:idPrograma', [
-//     validarJWT,
-//     userRolPermitido(rolesPermitidos),
-//     obtenerPrograma(validar=true)
-// ], crearFormatoPrograma);
+//obtener archivos de one drive
+router.get('/planeacion/:idPrograma',[
+    validarJWT,
+    userRolPermitido(['DIRECTORA ', 'LIDER DE PROYETOS', 'SUPERUSER']),
+], obtenerArchivosPlaneacion);
+
 
 
 module.exports = router;
