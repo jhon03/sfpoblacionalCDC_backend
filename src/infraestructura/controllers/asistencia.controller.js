@@ -102,7 +102,7 @@ const contarAsistentesPorActividad = async (req, res) => {
   }
 };
 
-//Obtener totales de asistentes por actividades para gráfica
+//Obtener totales de asistentes por actividades para gráfica//comentario para volver a subir a railway
 const obtenerTotalesPorActividades = async (req, res) => {
   try {
     const totales = await Asistencia.aggregate([

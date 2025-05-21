@@ -6,6 +6,8 @@ const { buscarIdentificacionByIdOrName, crearInstanciaIdentificacion, guardarIde
 const { buscarUserByColaborador } = require("../../infraestructura/helpers/user.helpers");
 
 const infoAdmin = {
+
+    //usuario administrador de la aplicación
     numeroIdentificacion: 1112469726,
     nombre: "John Hoyos",
     nombreUsuario: "johnA@",
