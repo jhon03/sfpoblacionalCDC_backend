@@ -48,7 +48,7 @@ const obtenerProgramas = async(desde=0, limite=5) => {
     }
 };
 
-const obtenerProgramaConfirmacion = async (desde=0, hasta=5) => {
+const obtenerProgramaConfirmacion = async (desde=0, hasta=10) => {
     try {
         const programas= await
             Programa.find({estado:"EN PROCESO CONFIRMACION"})
@@ -58,7 +58,7 @@ const obtenerProgramaConfirmacion = async (desde=0, hasta=5) => {
                 console.log("Programas obtenidos:", programas);  // Verificar qué programas se están obteniendo
 
                 if (!programas || programas.length === 0) {
-                    throw new Error("No se encontraron programas en proceso de confirmación.");
+                 return []; // No lanzar error: retornar arreglo vacío
                 }
 
             // Obtener los idColaborador de los programas obtenidos
@@ -81,11 +81,11 @@ const obtenerProgramaConfirmacion = async (desde=0, hasta=5) => {
 
         console.log("Programas válidos:", programasValidos);  // Verificar los programas que quedan después del filtro
 
-        return programasValidos;
+        return programasValidos;//retorna arreglo (puede estar vació)
 
     }catch (error) {
         console.error("Error en obtenerProgramaConfirmacion:", error);
-        throw error;
+        throw error;// Esto sí es error del sistema
     }
 }
 

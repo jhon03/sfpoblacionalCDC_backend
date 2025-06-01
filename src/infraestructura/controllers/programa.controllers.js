@@ -90,27 +90,31 @@ const obtenerProgramasEnEspera = async (req, res) => {
         const programas = await obtenerProgramaConfirmacion();
         console.log("Programas obtenidos después de la validación:", programas);  // Verificar los programas después de obtener
 
+         if (programas.length === 0) {
+            return res.status(200).json({
+                msg: "No hay programas en proceso de confirmación.",
+                programas: [],
+                ...(tokenAcessoRenovado && { tokenAcessoRenovado })
+            });
+        }
+
         const programasDto = await programasToProgramasDtos(programas);
         console.log("Programas mapeados:", programasDto);
 
-        if(tokenAcessoRenovado){
-            return res.json({
-                //pagina: `pagina ${page} de ${paginasDisponibles}`,
-                msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
-                programas: programasDto,
-                tokenAcessoRenovado
-            })
-        }
-        return res.json({
+
+        return res.status(200).json({
             //pagina: `pagina ${page} de ${paginasDisponibles}`,
             msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
             programas: programasDto,
+             ...(tokenAcessoRenovado && { tokenAcessoRenovado })
         })
     } catch (error) {
-        return  res.status(400).json({
+          console.error("Error en obtenerProgramasEnEspera:", error);
+        return  res.status(500).json({
             msg: "Error al obtener la lista de programas en espera de confirmacion",
-            error: error.message
-        })
+            error: error.message,
+            programas:[]
+        });
     }
 }
 
