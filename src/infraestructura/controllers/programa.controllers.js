@@ -81,33 +81,39 @@ const obtenerListaProgramas = async (req, res) => {
 const obtenerProgramasEnEspera = async (req, res) => {
 
     const {tokenAcessoRenovado} = req;
-    //let { page } = req.query;
-    //const limit = 1;
-    //const desde = (page-1) * limit;
+     // Extraer paginación desde query string
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const desde = (page - 1) * limit;
 
     try {
 
-        const programas = await obtenerProgramaConfirmacion();
-        console.log("Programas obtenidos después de la validación:", programas);  // Verificar los programas después de obtener
+        const {programasValidos, totalResultados } = await obtenerProgramaConfirmacion(desde, limit);
+        const totalPaginas = Math.ceil(totalResultados / limit);
+        console.log("Programas obtenidos después de la validación:", programasValidos);  // Verificar los programas después de obtener
 
-         if (programas.length === 0) {
+         if (programasValidos.length === 0) {
             return res.status(200).json({
                 msg: "No hay programas en proceso de confirmación.",
                 programas: [],
+                totalPaginas: 0,
+                paginaActual: page,
                 ...(tokenAcessoRenovado && { tokenAcessoRenovado })
             });
         }
 
-        const programasDto = await programasToProgramasDtos(programas);
+        const programasDto = await programasToProgramasDtos(programasValidos);
         console.log("Programas mapeados:", programasDto);
 
 
         return res.status(200).json({
-            //pagina: `pagina ${page} de ${paginasDisponibles}`,
-            msg:`Se encontraron ${programas.length} en espera a ser confirmados`,
+
+           msg: `Se encontraron ${totalResultados} programas en espera a ser confirmados`,
             programas: programasDto,
+            totalPaginas,
+            paginaActual: page,
              ...(tokenAcessoRenovado && { tokenAcessoRenovado })
-        })
+        });
     } catch (error) {
           console.error("Error en obtenerProgramasEnEspera:", error);
         return  res.status(500).json({
@@ -116,7 +122,7 @@ const obtenerProgramasEnEspera = async (req, res) => {
             programas:[]
         });
     }
-}
+};
 
 const actualizarPrograma = async (req, res) => {
     let {programa, body: datos} = req;
